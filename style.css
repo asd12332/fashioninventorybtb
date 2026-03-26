@@ -322,18 +322,6 @@ body {
   color: var(--success);
   margin-bottom: 0.5rem;
 }
-.card-meta {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.8rem;
-}
-.meta-colors {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  flex-wrap: wrap;
-}
 .color-dot {
   display: inline-block;
   width: 14px;
@@ -349,40 +337,43 @@ body {
 .meta-count {
   font-size: 0.75rem;
   color: var(--text-muted);
-  margin-left: 4px;
 }
-
-/* Per-color piece count chips */
-.meta-colors-breakdown {
+/* Per-color piece list on cards */
+.card-color-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 0.8rem;
+}
+.card-color-row {
   display: flex;
   align-items: center;
   gap: 6px;
-  flex-wrap: wrap;
+  padding: 3px 8px;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 6px;
+  font-size: 0.78rem;
 }
-.color-pieces-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 2px 8px 2px 4px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 20px;
-  font-size: 0.75rem;
-  transition: all 0.2s ease;
+.card-color-row:hover {
+  background: rgba(255, 255, 255, 0.08);
 }
-.color-pieces-chip:hover {
-  background: rgba(255, 255, 255, 0.10);
-  border-color: rgba(255, 255, 255, 0.15);
-}
-.color-pieces-chip .color-dot {
+.card-color-row .color-dot {
   width: 10px;
   height: 10px;
   border-width: 1.5px;
+  flex-shrink: 0;
 }
-.color-pieces-count {
-  font-weight: 600;
+.card-color-name {
   color: var(--text-secondary);
-  line-height: 1;
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.card-color-pieces {
+  font-weight: 600;
+  color: var(--success);
+  white-space: nowrap;
 }
 
 .card-footer {
