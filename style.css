@@ -352,6 +352,39 @@ body {
   margin-left: 4px;
 }
 
+/* Per-color piece count chips */
+.meta-colors-breakdown {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.color-pieces-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px 2px 4px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  font-size: 0.75rem;
+  transition: all 0.2s ease;
+}
+.color-pieces-chip:hover {
+  background: rgba(255, 255, 255, 0.10);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+.color-pieces-chip .color-dot {
+  width: 10px;
+  height: 10px;
+  border-width: 1.5px;
+}
+.color-pieces-count {
+  font-weight: 600;
+  color: var(--text-secondary);
+  line-height: 1;
+}
+
 .card-footer {
   display: flex;
   align-items: center;

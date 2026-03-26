@@ -244,12 +244,16 @@ function renderGrid() {
           <h3 class="card-title">${dress.id}</h3>
           <div class="card-price">${dress.price ? '$' + Number(dress.price).toFixed(0) : ''}</div>
           <div class="card-meta">
-            <span class="meta-colors">
-              ${(dress.dress_colors || []).map(c =>
-                `<span class="color-dot" style="background:${c.color_hex}" title="${c.color_name}"></span>`
-              ).join('')}
-              ${colorCount > 0 ? `<span class="meta-count">${colorCount} color${colorCount > 1 ? 's' : ''}</span>` : '<span class="meta-count">No colors</span>'}
-            </span>
+            <div class="meta-colors-breakdown">
+              ${(dress.dress_colors || []).map(c => {
+                const colorPieces = (c.dress_sizes || []).reduce((s, sz) => s + (sz.quantity || 0), 0);
+                return `<span class="color-pieces-chip" title="${c.color_name}: ${colorPieces} piece${colorPieces !== 1 ? 's' : ''}">
+                  <span class="color-dot" style="background:${c.color_hex}"></span>
+                  <span class="color-pieces-count">${colorPieces}</span>
+                </span>`;
+              }).join('')}
+              ${colorCount === 0 ? '<span class="meta-count">No colors</span>' : ''}
+            </div>
           </div>
           <div class="card-footer">
             <span class="pieces-badge">${totalPieces} piece${totalPieces !== 1 ? 's' : ''}</span>
