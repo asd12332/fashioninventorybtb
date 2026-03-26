@@ -370,10 +370,12 @@ body {
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.card-color-pieces {
+.card-color-sizes {
   font-weight: 600;
-  color: var(--success);
+  color: var(--text-secondary);
   white-space: nowrap;
+  font-size: 0.72rem;
+  letter-spacing: 0.03em;
 }
 
 .card-footer {

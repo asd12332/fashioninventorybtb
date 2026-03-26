@@ -245,11 +245,11 @@ function renderGrid() {
           <div class="card-price">${dress.price ? '$' + Number(dress.price).toFixed(0) : ''}</div>
           <div class="card-color-list">
             ${(dress.dress_colors || []).map(c => {
-              const colorPieces = (c.dress_sizes || []).reduce((s, sz) => s + (sz.quantity || 0), 0);
+              const availableSizes = (c.dress_sizes || []).filter(sz => sz.quantity > 0).map(sz => sz.size).sort((a,b) => a - b);
               return `<div class="card-color-row">
                 <span class="color-dot" style="background:${c.color_hex}"></span>
                 <span class="card-color-name">${c.color_name}</span>
-                <span class="card-color-pieces">${colorPieces} pcs</span>
+                <span class="card-color-sizes">${availableSizes.length > 0 ? availableSizes.join('  ') : '—'}</span>
               </div>`;
             }).join('')}
             ${colorCount === 0 ? '<div class="card-color-row"><span class="meta-count">No colors</span></div>' : ''}
