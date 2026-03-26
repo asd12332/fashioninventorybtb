@@ -138,11 +138,13 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
         <div class="card-body">
           <h3 class="card-title">${e.id}</h3>
           <div class="card-price">${e.price?`$`+Number(e.price).toFixed(0):``}</div>
-          <div class="card-meta">
-            <span class="meta-colors">
-              ${(e.dress_colors||[]).map(e=>`<span class="color-dot" style="background:${e.color_hex}" title="${e.color_name}"></span>`).join(``)}
-              ${r>0?`<span class="meta-count">${r} color${r>1?`s`:``}</span>`:`<span class="meta-count">No colors</span>`}
-            </span>
+          <div class="card-color-list">
+            ${(e.dress_colors||[]).map(e=>{let t=(e.dress_sizes||[]).filter(e=>e.quantity>0).map(e=>e.size).sort((e,t)=>e-t);return`<div class="card-color-row">
+                <span class="color-dot" style="background:${e.color_hex}"></span>
+                <span class="card-color-name">${e.color_name}</span>
+                <span class="card-color-sizes">${t.length>0?t.join(`  `):`—`}</span>
+              </div>`}).join(``)}
+            ${r===0?`<div class="card-color-row"><span class="meta-count">No colors</span></div>`:``}
           </div>
           <div class="card-footer">
             <span class="pieces-badge">${n} piece${n===1?``:`s`}</span>
