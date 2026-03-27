@@ -20,6 +20,7 @@ let filterColor = '';       // '' = all
 let filterPriceMin = '';
 let filterPriceMax = '';
 let sortOrder = 'desc';     // 'asc' | 'desc' by ID
+let gridCols = 3;           // cards per row
 
 // ─── STEPPER HELPERS ────────────────────────────────────────
 function renderSizeStepper(size, qty, extraAttrs = '') {
@@ -154,6 +155,15 @@ function renderShell() {
           <option value="price_desc">Price: High → Low</option>
         </select>
       </div>
+      <div class="filter-group">
+        <label for="gridCols">Per Row</label>
+        <select id="gridCols">
+          <option value="2">2</option>
+          <option value="3" selected>3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+        </select>
+      </div>
       <button class="btn btn-ghost btn-reset-filters" id="btnResetFilters">Reset</button>
     </div>
 
@@ -190,12 +200,14 @@ function renderShell() {
   document.getElementById('filterPriceMin').addEventListener('input', (e) => { filterPriceMin = e.target.value; renderGrid(); });
   document.getElementById('filterPriceMax').addEventListener('input', (e) => { filterPriceMax = e.target.value; renderGrid(); });
   document.getElementById('sortOrder').addEventListener('change', (e) => { sortOrder = e.target.value; renderGrid(); });
+  document.getElementById('gridCols').addEventListener('change', (e) => { gridCols = parseInt(e.target.value); renderGrid(); });
   document.getElementById('btnResetFilters').addEventListener('click', () => {
-    filterColor = ''; filterPriceMin = ''; filterPriceMax = ''; sortOrder = 'desc';
+    filterColor = ''; filterPriceMin = ''; filterPriceMax = ''; sortOrder = 'desc'; gridCols = 3;
     document.getElementById('filterColor').value = '';
     document.getElementById('filterPriceMin').value = '';
     document.getElementById('filterPriceMax').value = '';
     document.getElementById('sortOrder').value = 'desc';
+    document.getElementById('gridCols').value = '3';
     renderGrid();
   });
 }
@@ -263,6 +275,7 @@ function showGridLoading() {
 
 function renderGrid() {
   const grid = document.getElementById('dressGrid');
+  grid.style.gridTemplateColumns = `repeat(${gridCols}, 1fr)`;
 
   // ── Filter ──
   let filtered = allDresses.filter((dress) => {
