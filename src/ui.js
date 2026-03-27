@@ -15,6 +15,12 @@ let searchTimeout = null;
 let addModeColors = []; // tracks color entries when adding a new dress
 let addColorCounter = 0; // unique ID for each color entry in add mode
 
+// ─── FILTER / SORT STATE ────────────────────────────────────
+let filterColor = '';       // '' = all
+let filterPriceMin = '';
+let filterPriceMax = '';
+let sortOrder = 'desc';     // 'asc' | 'desc' by ID
+
 // ─── STEPPER HELPERS ────────────────────────────────────────
 function renderSizeStepper(size, qty, extraAttrs = '') {
   return `
@@ -123,6 +129,34 @@ function renderShell() {
 
     <div class="stats-bar" id="statsBar"></div>
 
+    <div class="filter-bar" id="filterBar">
+      <div class="filter-group">
+        <label for="filterColor">Color</label>
+        <select id="filterColor">
+          <option value="">All Colors</option>
+          ${FASHION_COLORS.map(c => `<option value="${c.name}">${c.name}</option>`).join('')}
+        </select>
+      </div>
+      <div class="filter-group">
+        <label for="filterPriceMin">Price</label>
+        <div class="price-range-inputs">
+          <input type="number" id="filterPriceMin" placeholder="Min" min="0" />
+          <span class="price-separator">–</span>
+          <input type="number" id="filterPriceMax" placeholder="Max" min="0" />
+        </div>
+      </div>
+      <div class="filter-group">
+        <label for="sortOrder">Sort</label>
+        <select id="sortOrder">
+          <option value="desc">ID: Newest First</option>
+          <option value="asc">ID: Oldest First</option>
+          <option value="price_asc">Price: Low → High</option>
+          <option value="price_desc">Price: High → Low</option>
+        </select>
+      </div>
+      <button class="btn btn-ghost btn-reset-filters" id="btnResetFilters">Reset</button>
+    </div>
+
     <main class="main-content">
       <div class="dress-grid" id="dressGrid"></div>
     </main>
@@ -149,6 +183,20 @@ function renderShell() {
   });
   document.getElementById('detailOverlay').addEventListener('click', (e) => {
     if (e.target === e.currentTarget) closeDetail();
+  });
+
+  // Filter / sort listeners
+  document.getElementById('filterColor').addEventListener('change', (e) => { filterColor = e.target.value; renderGrid(); });
+  document.getElementById('filterPriceMin').addEventListener('input', (e) => { filterPriceMin = e.target.value; renderGrid(); });
+  document.getElementById('filterPriceMax').addEventListener('input', (e) => { filterPriceMax = e.target.value; renderGrid(); });
+  document.getElementById('sortOrder').addEventListener('change', (e) => { sortOrder = e.target.value; renderGrid(); });
+  document.getElementById('btnResetFilters').addEventListener('click', () => {
+    filterColor = ''; filterPriceMin = ''; filterPriceMax = ''; sortOrder = 'desc';
+    document.getElementById('filterColor').value = '';
+    document.getElementById('filterPriceMin').value = '';
+    document.getElementById('filterPriceMax').value = '';
+    document.getElementById('sortOrder').value = 'desc';
+    renderGrid();
   });
 }
 
@@ -216,29 +264,54 @@ function showGridLoading() {
 function renderGrid() {
   const grid = document.getElementById('dressGrid');
 
-  if (allDresses.length === 0) {
+  // ── Filter ──
+  let filtered = allDresses.filter((dress) => {
+    // Color filter: keep dress if it has at least one matching color
+    if (filterColor) {
+      const hasColor = (dress.dress_colors || []).some(c => c.color_name === filterColor);
+      if (!hasColor) return false;
+    }
+    // Price filter
+    const price = Number(dress.price) || 0;
+    if (filterPriceMin !== '' && price < Number(filterPriceMin)) return false;
+    if (filterPriceMax !== '' && price > Number(filterPriceMax)) return false;
+    return true;
+  });
+
+  // ── Sort ──
+  filtered.sort((a, b) => {
+    if (sortOrder === 'asc') return a.id.localeCompare(b.id);
+    if (sortOrder === 'desc') return b.id.localeCompare(a.id);
+    if (sortOrder === 'price_asc') return (Number(a.price) || 0) - (Number(b.price) || 0);
+    if (sortOrder === 'price_desc') return (Number(b.price) || 0) - (Number(a.price) || 0);
+    return 0;
+  });
+
+  if (filtered.length === 0) {
     grid.innerHTML = `
       <div class="empty-state">
         <div class="empty-icon">👗</div>
-        <h2>No dresses yet</h2>
-        <p>Click "Add Dress" to start tracking your inventory</p>
+        <h2>${allDresses.length === 0 ? 'No dresses yet' : 'No matches'}</h2>
+        <p>${allDresses.length === 0 ? 'Click "Add Dress" to start tracking your inventory' : 'Try adjusting your filters'}</p>
       </div>
     `;
     return;
   }
 
-  grid.innerHTML = allDresses.map((dress) => {
+  grid.innerHTML = filtered.map((dress) => {
     const firstColor = dress.dress_colors?.[0];
     const totalPieces = (dress.dress_colors || []).reduce((sum, c) =>
       sum + (c.dress_sizes || []).reduce((s, sz) => s + (sz.quantity || 0), 0), 0
     );
     const colorCount = dress.dress_colors?.length || 0;
+    const isSoldOut = totalPieces === 0;
 
     return `
-      <div class="dress-card" data-id="${dress.id}">
+      <div class="dress-card${isSoldOut ? ' sold-out' : ''}" data-id="${dress.id}">
         <div class="card-image" style="${firstColor?.image_url ? `background-image:url(${firstColor.image_url})` : ''}">
           ${!firstColor?.image_url ? '<div class="no-image">👗</div>' : ''}
           <div class="card-badge">${dress.id}</div>
+          ${isSoldOut ? '<div class="sold-out-banner">SOLD OUT</div>' : ''}
         </div>
         <div class="card-body">
           <h3 class="card-title">${dress.id}</h3>
@@ -255,7 +328,7 @@ function renderGrid() {
             ${colorCount === 0 ? '<div class="card-color-row"><span class="meta-count">No colors</span></div>' : ''}
           </div>
           <div class="card-footer">
-            <span class="pieces-badge">${totalPieces} piece${totalPieces !== 1 ? 's' : ''}</span>
+            <span class="pieces-badge${isSoldOut ? ' sold-out-badge' : ''}">${isSoldOut ? 'Sold Out' : totalPieces + ' piece' + (totalPieces !== 1 ? 's' : '')}</span>
             <div class="card-actions">
               <button class="btn-icon btn-edit" data-action="edit" data-id="${dress.id}" title="Edit">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">

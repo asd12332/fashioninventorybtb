@@ -238,6 +238,92 @@ body {
   font-weight: 500;
 }
 
+/* ─── FILTER BAR ─────────────────────────────────────────── */
+.filter-bar {
+  display: flex;
+  align-items: flex-end;
+  gap: 1rem;
+  padding: 0.8rem 2rem;
+  border-bottom: 1px solid var(--border-color);
+  background: rgba(255, 255, 255, 0.02);
+  flex-wrap: wrap;
+}
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+.filter-group label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.filter-group select,
+.filter-group input {
+  padding: 0.45rem 0.7rem;
+  background: var(--bg-input);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 0.82rem;
+  transition: all 0.2s ease;
+  min-width: 0;
+}
+.filter-group select:focus,
+.filter-group input:focus {
+  outline: none;
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 2px var(--accent-glow);
+}
+.price-range-inputs {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.price-range-inputs input {
+  width: 70px;
+}
+.price-separator {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+.btn-reset-filters {
+  padding: 0.45rem 0.9rem !important;
+  font-size: 0.78rem !important;
+  align-self: flex-end;
+}
+
+/* ─── SOLD OUT CARD ──────────────────────────────────────── */
+.dress-card.sold-out {
+  opacity: 0.6;
+}
+.dress-card.sold-out:hover {
+  opacity: 0.8;
+}
+.sold-out-banner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-20deg);
+  background: rgba(239, 68, 68, 0.85);
+  color: #fff;
+  font-size: 1.1rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  padding: 0.4rem 2rem;
+  border-radius: 4px;
+  z-index: 2;
+  pointer-events: none;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+.pieces-badge.sold-out-badge {
+  background: rgba(239, 68, 68, 0.15);
+  color: var(--error);
+}
+
 /* ─── MAIN CONTENT ───────────────────────────────────────── */
 .main-content {
   padding: 2rem;
