@@ -67,7 +67,7 @@ Deno.serve(async (req: Request) => {
     if (!product_id) {
       const title = encodeURIComponent(`Dress ${dress_id}`)
       const pRes = await fetch(
-        `https://${shop}/admin/api/2026-04/products.json?title=${title}&fields=id,title,variants,options`,
+        `https://${shop}/admin/api/2026-04/products.json?title=${title}&fields=id,title,variants,options,images`,
         { headers: shopifyHeaders }
       )
       const pData = await pRes.json()

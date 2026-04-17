@@ -12,28 +12,30 @@ async function syncOne(dressId, colorName, size, quantity) {
 /**
  * Sync only the changed sizes to Shopify.
  * changes: Array of { dress_id, color, size, quantity }
- * Returns { success, failed } counts.
+ * Returns { succeeded: [...], failed: [...] } — per-item outcome so caller
+ * can drop only the succeeded items from its queue and retry the failed ones.
  */
 export async function syncPendingChanges(changes) {
-  let success = 0
-  let failed = 0
+  const succeeded = []
+  const failed = []
 
-  for (const { dress_id, color, size, quantity } of changes) {
+  for (const change of changes) {
+    const { dress_id, color, size, quantity } = change
     try {
       const result = await syncOne(dress_id, color, size, quantity)
       if (result.ok || result.action === 'skipped') {
-        success++
+        succeeded.push(change)
       } else {
         console.warn('Sync failed:', dress_id, color, size, result)
-        failed++
+        failed.push(change)
       }
     } catch (e) {
       console.warn('Sync error:', e)
-      failed++
+      failed.push(change)
     }
   }
 
-  return { success, failed }
+  return { succeeded, failed }
 }
 
 /**

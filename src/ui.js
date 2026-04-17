@@ -17,7 +17,35 @@ let addModeColors = []; // tracks color entries when adding a new dress
 let addColorCounter = 0; // unique ID for each color entry in add mode
 
 // ─── FILTER / SORT STATE ────────────────────────────────────
-let pendingSync = [];       // { dress_id, color, size, quantity } changes awaiting sync
+const PENDING_KEY = 'pendingShopifySync.v1';
+let pendingSync = loadPending(); // { dress_id, color, size, quantity } changes awaiting sync
+
+function loadPending() {
+  try {
+    const raw = localStorage.getItem(PENDING_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+function savePending() {
+  try { localStorage.setItem(PENDING_KEY, JSON.stringify(pendingSync)); } catch {}
+  updateSyncBadge();
+}
+function queueChange(dress_id, color, size, quantity) {
+  const key = (c) => `${c.dress_id}|${c.color}|${c.size}`;
+  const newKey = `${dress_id}|${color}|${size}`;
+  pendingSync = pendingSync.filter((c) => key(c) !== newKey);
+  pendingSync.push({ dress_id, color, size: parseInt(size), quantity });
+  savePending();
+}
+function updateSyncBadge() {
+  const label = document.querySelector('#btnSync span');
+  if (!label) return;
+  label.textContent = pendingSync.length > 0
+    ? `Sync to Shopify (${pendingSync.length})`
+    : 'Sync to Shopify';
+}
 
 let filterColor = '';       // '' = all
 let filterPriceMin = '';
@@ -200,6 +228,7 @@ function renderShell() {
   // Event listeners
   document.getElementById('btnAdd').addEventListener('click', () => openAddModal());
   document.getElementById('btnSync').addEventListener('click', handleShopifySync);
+  updateSyncBadge();
   document.getElementById('searchInput').addEventListener('input', handleSearch);
   document.getElementById('modalOverlay').addEventListener('click', (e) => {
     if (e.target === e.currentTarget) closeModal();
@@ -248,18 +277,22 @@ async function handleShopifySync() {
   btn.innerHTML = '<span class="spinner"></span> Syncing...';
   const changesToSync = [...pendingSync];
   try {
-    const { success, failed } = await syncPendingChanges(changesToSync);
-    if (failed === 0) {
-      pendingSync = pendingSync.filter((c) => !changesToSync.includes(c));
-      showToast(`Synced ${success} change${success !== 1 ? 's' : ''} to Shopify!`, 'success');
+    const { succeeded, failed } = await syncPendingChanges(changesToSync);
+    // Remove only the items that succeeded; keep failed items queued for retry.
+    // Also preserve any new changes that arrived during the sync.
+    pendingSync = pendingSync.filter((c) => !succeeded.includes(c));
+    savePending();
+    if (failed.length === 0) {
+      showToast(`Synced ${succeeded.length} change${succeeded.length !== 1 ? 's' : ''} to Shopify!`, 'success');
     } else {
-      showToast(`Synced ${success} changes. ${failed} failed — check console.`, 'error');
+      showToast(`Synced ${succeeded.length}. ${failed.length} failed — check console, retry available.`, 'error');
     }
   } catch (err) {
     showToast('Sync failed: ' + err.message, 'error');
   } finally {
     btn.disabled = false;
     btn.innerHTML = originalContent;
+    updateSyncBadge();
   }
 }
 
@@ -762,7 +795,7 @@ function renderDressForm(dress) {
           const colorToDelete = dress.dress_colors.find((c) => c.id === colorId);
           await deleteColor(colorId);
           for (const sizeEntry of colorToDelete?.dress_sizes || []) {
-            pendingSync.push({ dress_id: dress.id, color: colorToDelete.color_name, size: sizeEntry.size, quantity: 0 });
+            queueChange(dress.id, colorToDelete.color_name, sizeEntry.size, 0);
           }
           showToast('Color deleted', 'success');
           allDresses = await getDresses();
@@ -841,7 +874,7 @@ function renderDressForm(dress) {
           if (Object.keys(changedSizes).length > 0) {
             await bulkSetSizes(colorId, changedSizes);
             for (const [size, qty] of Object.entries(changedSizes)) {
-              pendingSync.push({ dress_id: dress.id, color: originalColor.color_name, size: parseInt(size), quantity: qty });
+              queueChange(dress.id, originalColor.color_name, size, qty);
             }
           }
         }
@@ -873,7 +906,7 @@ function renderDressForm(dress) {
           if (Object.keys(sizesMap).length > 0) {
             await bulkSetSizes(colorData.id, sizesMap);
             for (const [size, qty] of Object.entries(sizesMap)) {
-              pendingSync.push({ dress_id: dressId, color: colorName, size: parseInt(size), quantity: qty });
+              queueChange(dressId, colorName, size, qty);
             }
           }
         }
@@ -1036,7 +1069,7 @@ export function openAddColorModal(dressId) {
       if (Object.keys(sizesMap).length > 0) {
         await bulkSetSizes(colorData.id, sizesMap);
         for (const [size, qty] of Object.entries(sizesMap)) {
-          pendingSync.push({ dress_id: dressId, color: colorName, size: parseInt(size), quantity: qty });
+          queueChange(dressId, colorName, size, qty);
         }
       }
 
@@ -1075,7 +1108,13 @@ function confirmDelete(dressId) {
     btn.disabled = true;
     btn.innerHTML = '<span class="spinner"></span> Deleting...';
     try {
+      const dressToDelete = allDresses.find((d) => d.id === dressId);
       await deleteDress(dressId);
+      for (const color of dressToDelete?.dress_colors || []) {
+        for (const sizeEntry of color.dress_sizes || []) {
+          queueChange(dressId, color.color_name, sizeEntry.size, 0);
+        }
+      }
       showToast('Dress deleted', 'success');
       closeModal();
       await loadDresses();
