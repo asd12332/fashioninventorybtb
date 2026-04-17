@@ -144,10 +144,19 @@ Deno.serve(async (req: Request) => {
         ['size', 'مقاس', 'مقاسات'].includes(o.name.toLowerCase())
       )?.position ?? 2
 
+      // Fetch dress price from Supabase
+      const { data: dressData } = await supabase
+        .from('dresses')
+        .select('price')
+        .eq('id', dress_id)
+        .maybeSingle()
+      const price = dressData?.price ?? 0
+
       const variantBody: any = {
         option1: null, option2: null, option3: null,
         inventory_management: 'shopify',
         inventory_policy: 'deny',
+        price: String(price),
       }
       variantBody[`option${colorOptionPos}`] = color
       variantBody[`option${sizeOptionPos}`] = String(size)
@@ -181,7 +190,18 @@ Deno.serve(async (req: Request) => {
         location_id: String(location_id),
       })
 
-      // Set inventory for newly created variant
+      // Connect inventory item to location first (required for new variants)
+      await fetch(`https://${shop}/admin/api/2026-04/inventory_levels/connect.json`, {
+        method: 'POST',
+        headers: shopifyHeaders,
+        body: JSON.stringify({
+          location_id: Number(location_id),
+          inventory_item_id: Number(inventory_item_id),
+          relocate_if_necessary: true,
+        }),
+      })
+
+      // Now set the inventory quantity
       await fetch(`https://${shop}/admin/api/2026-04/inventory_levels/set.json`, {
         method: 'POST',
         headers: shopifyHeaders,
