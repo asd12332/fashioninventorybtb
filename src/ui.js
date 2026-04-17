@@ -6,7 +6,7 @@ import {
   addColorToDress, updateColorImage, deleteColor,
   bulkSetSizes, computeStats, searchDresses,
 } from './inventory.js';
-import { syncAllSizesToShopify } from './shopify.js';
+import { syncAllDresses } from './shopify.js';
 
 // ─── STATE ──────────────────────────────────────────────────
 let allDresses = [];
@@ -120,6 +120,15 @@ function renderShell() {
         </div>
       </div>
       <div class="header-right">
+        <button id="btnSync" class="btn btn-ghost">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+            <path d="M4 12c0-4.418 3.582-8 8-8a8 8 0 0 1 6.32 3.09"/>
+            <path d="M20 12c0 4.418-3.582 8-8 8a8 8 0 0 1-6.32-3.09"/>
+            <polyline points="22 4 20 6.09 18 4"/>
+            <polyline points="2 20 4 17.91 6 20"/>
+          </svg>
+          <span>Sync to Shopify</span>
+        </button>
         <button id="btnAdd" class="btn btn-primary">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="18" height="18">
             <path d="M12 5v14M5 12h14"/>
@@ -188,6 +197,7 @@ function renderShell() {
 
   // Event listeners
   document.getElementById('btnAdd').addEventListener('click', () => openAddModal());
+  document.getElementById('btnSync').addEventListener('click', handleShopifySync);
   document.getElementById('searchInput').addEventListener('input', handleSearch);
   document.getElementById('modalOverlay').addEventListener('click', (e) => {
     if (e.target === e.currentTarget) closeModal();
@@ -222,6 +232,26 @@ async function loadDresses() {
     renderGrid();
   } catch (err) {
     showToast('Failed to load dresses: ' + err.message, 'error');
+  }
+}
+
+async function handleShopifySync() {
+  const btn = document.getElementById('btnSync');
+  const originalContent = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Syncing...';
+  try {
+    const { success, failed } = await syncAllDresses(allDresses);
+    if (failed === 0) {
+      showToast(`Synced ${success} sizes to Shopify!`, 'success');
+    } else {
+      showToast(`Synced ${success} sizes. ${failed} failed — check console.`, 'error');
+    }
+  } catch (err) {
+    showToast('Sync failed: ' + err.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = originalContent;
   }
 }
 
@@ -798,7 +828,6 @@ function renderDressForm(dress) {
           }
           if (Object.keys(changedSizes).length > 0) {
             await bulkSetSizes(colorId, changedSizes);
-            syncAllSizesToShopify(dress.id, originalColor.color_name, changedSizes);
           }
         }
 
@@ -828,7 +857,6 @@ function renderDressForm(dress) {
           const colorData = await addColorToDress(dressId, colorName, colorHex, imageFile);
           if (Object.keys(sizesMap).length > 0) {
             await bulkSetSizes(colorData.id, sizesMap);
-            syncAllSizesToShopify(dressId, colorName, sizesMap);
           }
         }
 
@@ -989,7 +1017,6 @@ export function openAddColorModal(dressId) {
       const colorData = await addColorToDress(dressId, colorName, colorHex, imageFile);
       if (Object.keys(sizesMap).length > 0) {
         await bulkSetSizes(colorData.id, sizesMap);
-        syncAllSizesToShopify(dressId, colorName, sizesMap);
       }
 
       showToast('Color added!', 'success');
