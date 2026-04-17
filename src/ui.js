@@ -285,7 +285,11 @@ async function handleShopifySync() {
     if (failed.length === 0) {
       showToast(`Synced ${succeeded.length} change${succeeded.length !== 1 ? 's' : ''} to Shopify!`, 'success');
     } else {
-      showToast(`Synced ${succeeded.length}. ${failed.length} failed — check console, retry available.`, 'error');
+      const first = failed[0];
+      const msg = `Failed: Dress ${first.dress_id} ${first.color} size ${first.size} — ${first.reason}`;
+      showToast(msg, 'error');
+      alert(`Sync failed (${failed.length} item${failed.length > 1 ? 's' : ''}):\n\n` +
+            failed.map(f => `• Dress ${f.dress_id} / ${f.color} / size ${f.size} → qty ${f.quantity}\n  ${f.reason}`).join('\n\n'));
     }
   } catch (err) {
     showToast('Sync failed: ' + err.message, 'error');

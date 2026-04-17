@@ -27,11 +27,11 @@ export async function syncPendingChanges(changes) {
         succeeded.push(change)
       } else {
         console.warn('Sync failed:', dress_id, color, size, result)
-        failed.push(change)
+        failed.push({ ...change, reason: result.error || JSON.stringify(result) })
       }
     } catch (e) {
       console.warn('Sync error:', e)
-      failed.push(change)
+      failed.push({ ...change, reason: e.message || String(e) })
     }
   }
 
