@@ -126,10 +126,10 @@ Deno.serve(async (req: Request) => {
 
     // If variant doesn't exist yet and quantity > 0 → create it
     if (!variant_id) {
-      // Fetch product options to determine which option slot is color vs size
+      // Fetch full product (variants + options + images) if not already loaded
       if (!product) {
         const pRes = await fetch(
-          `https://${shop}/admin/api/2026-04/products/${product_id}.json?fields=id,variants,options`,
+          `https://${shop}/admin/api/2026-04/products/${product_id}.json?fields=id,variants,options,images`,
           { headers: shopifyHeaders }
         )
         const pData = await pRes.json()
@@ -144,19 +144,28 @@ Deno.serve(async (req: Request) => {
         ['size', 'مقاس', 'مقاسات'].includes(o.name.toLowerCase())
       )?.position ?? 2
 
-      // Fetch dress price from Supabase
-      const { data: dressData } = await supabase
-        .from('dresses')
-        .select('price')
-        .eq('id', dress_id)
-        .maybeSingle()
-      const price = dressData?.price ?? 0
+      // Get price and image from existing same-color variants
+      const sameColorVariant = product?.variants?.find((v: any) => {
+        const opts = [v.option1, v.option2, v.option3]
+        return opts.some((o: string) => o?.toLowerCase() === color.toLowerCase())
+      })
+      const price = sameColorVariant?.price ?? '0'
+
+      // Find the image currently linked to same-color variants
+      const sameColorVariantIds: number[] = (product?.variants || [])
+        .filter((v: any) => [v.option1, v.option2, v.option3]
+          .some((o: string) => o?.toLowerCase() === color.toLowerCase()))
+        .map((v: any) => v.id)
+      const colorImage = product?.images?.find((img: any) =>
+        img.variant_ids?.some((id: number) => sameColorVariantIds.includes(id))
+      )
 
       const variantBody: any = {
         option1: null, option2: null, option3: null,
         inventory_management: 'shopify',
         inventory_policy: 'deny',
         price: String(price),
+        image_id: colorImage?.id ?? undefined,
       }
       variantBody[`option${colorOptionPos}`] = color
       variantBody[`option${sizeOptionPos}`] = String(size)
@@ -189,6 +198,19 @@ Deno.serve(async (req: Request) => {
         inventory_item_id: String(inventory_item_id),
         location_id: String(location_id),
       })
+
+      // Link new variant to the same color image (preserves existing image assignments)
+      if (colorImage) {
+        const updatedVariantIds = [...(colorImage.variant_ids || []), Number(variant_id)]
+        await fetch(
+          `https://${shop}/admin/api/2026-04/products/${product_id}/images/${colorImage.id}.json`,
+          {
+            method: 'PUT',
+            headers: shopifyHeaders,
+            body: JSON.stringify({ image: { id: colorImage.id, variant_ids: updatedVariantIds } }),
+          }
+        )
+      }
 
       // Connect inventory item to location first (required for new variants)
       await fetch(`https://${shop}/admin/api/2026-04/inventory_levels/connect.json`, {
