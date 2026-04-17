@@ -6,6 +6,7 @@ import {
   addColorToDress, updateColorImage, deleteColor,
   bulkSetSizes, computeStats, searchDresses,
 } from './inventory.js';
+import { syncAllSizesToShopify } from './shopify.js';
 
 // ─── STATE ──────────────────────────────────────────────────
 let allDresses = [];
@@ -797,6 +798,7 @@ function renderDressForm(dress) {
           }
           if (Object.keys(changedSizes).length > 0) {
             await bulkSetSizes(colorId, changedSizes);
+            syncAllSizesToShopify(dress.id, originalColor.color_name, changedSizes);
           }
         }
 
@@ -826,6 +828,7 @@ function renderDressForm(dress) {
           const colorData = await addColorToDress(dressId, colorName, colorHex, imageFile);
           if (Object.keys(sizesMap).length > 0) {
             await bulkSetSizes(colorData.id, sizesMap);
+            syncAllSizesToShopify(dressId, colorName, sizesMap);
           }
         }
 
@@ -986,6 +989,7 @@ export function openAddColorModal(dressId) {
       const colorData = await addColorToDress(dressId, colorName, colorHex, imageFile);
       if (Object.keys(sizesMap).length > 0) {
         await bulkSetSizes(colorData.id, sizesMap);
+        syncAllSizesToShopify(dressId, colorName, sizesMap);
       }
 
       showToast('Color added!', 'success');
