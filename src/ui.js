@@ -6,7 +6,7 @@ import {
   addColorToDress, updateColorImage, deleteColor,
   bulkSetSizes, computeStats, searchDresses,
 } from './inventory.js';
-import { syncAllDresses } from './shopify.js';
+import { syncPendingChanges, syncAllDresses } from './shopify.js';
 
 // ─── STATE ──────────────────────────────────────────────────
 let allDresses = [];
@@ -17,6 +17,8 @@ let addModeColors = []; // tracks color entries when adding a new dress
 let addColorCounter = 0; // unique ID for each color entry in add mode
 
 // ─── FILTER / SORT STATE ────────────────────────────────────
+let pendingSync = [];       // { dress_id, color, size, quantity } changes awaiting sync
+
 let filterColor = '';       // '' = all
 let filterPriceMin = '';
 let filterPriceMax = '';
@@ -236,16 +238,22 @@ async function loadDresses() {
 }
 
 async function handleShopifySync() {
+  if (pendingSync.length === 0) {
+    showToast('No changes to sync.', 'success');
+    return;
+  }
   const btn = document.getElementById('btnSync');
   const originalContent = btn.innerHTML;
   btn.disabled = true;
   btn.innerHTML = '<span class="spinner"></span> Syncing...';
+  const changesToSync = [...pendingSync];
   try {
-    const { success, failed } = await syncAllDresses(allDresses);
+    const { success, failed } = await syncPendingChanges(changesToSync);
     if (failed === 0) {
-      showToast(`Synced ${success} sizes to Shopify!`, 'success');
+      pendingSync = pendingSync.filter((c) => !changesToSync.includes(c));
+      showToast(`Synced ${success} change${success !== 1 ? 's' : ''} to Shopify!`, 'success');
     } else {
-      showToast(`Synced ${success} sizes. ${failed} failed — check console.`, 'error');
+      showToast(`Synced ${success} changes. ${failed} failed — check console.`, 'error');
     }
   } catch (err) {
     showToast('Sync failed: ' + err.message, 'error');
@@ -751,7 +759,11 @@ function renderDressForm(dress) {
         if (!confirm('Delete this color variant? This cannot be undone.')) return;
         btn.disabled = true;
         try {
+          const colorToDelete = dress.dress_colors.find((c) => c.id === colorId);
           await deleteColor(colorId);
+          for (const sizeEntry of colorToDelete?.dress_sizes || []) {
+            pendingSync.push({ dress_id: dress.id, color: colorToDelete.color_name, size: sizeEntry.size, quantity: 0 });
+          }
           showToast('Color deleted', 'success');
           allDresses = await getDresses();
           const updatedDress = allDresses.find((d) => d.id === dress.id);
@@ -828,6 +840,9 @@ function renderDressForm(dress) {
           }
           if (Object.keys(changedSizes).length > 0) {
             await bulkSetSizes(colorId, changedSizes);
+            for (const [size, qty] of Object.entries(changedSizes)) {
+              pendingSync.push({ dress_id: dress.id, color: originalColor.color_name, size: parseInt(size), quantity: qty });
+            }
           }
         }
 
@@ -857,6 +872,9 @@ function renderDressForm(dress) {
           const colorData = await addColorToDress(dressId, colorName, colorHex, imageFile);
           if (Object.keys(sizesMap).length > 0) {
             await bulkSetSizes(colorData.id, sizesMap);
+            for (const [size, qty] of Object.entries(sizesMap)) {
+              pendingSync.push({ dress_id: dressId, color: colorName, size: parseInt(size), quantity: qty });
+            }
           }
         }
 
@@ -1017,6 +1035,9 @@ export function openAddColorModal(dressId) {
       const colorData = await addColorToDress(dressId, colorName, colorHex, imageFile);
       if (Object.keys(sizesMap).length > 0) {
         await bulkSetSizes(colorData.id, sizesMap);
+        for (const [size, qty] of Object.entries(sizesMap)) {
+          pendingSync.push({ dress_id: dressId, color: colorName, size: parseInt(size), quantity: qty });
+        }
       }
 
       showToast('Color added!', 'success');

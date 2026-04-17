@@ -10,7 +10,34 @@ async function syncOne(dressId, colorName, size, quantity) {
 }
 
 /**
- * Sync all dresses to Shopify. Called by the manual Sync button.
+ * Sync only the changed sizes to Shopify.
+ * changes: Array of { dress_id, color, size, quantity }
+ * Returns { success, failed } counts.
+ */
+export async function syncPendingChanges(changes) {
+  let success = 0
+  let failed = 0
+
+  for (const { dress_id, color, size, quantity } of changes) {
+    try {
+      const result = await syncOne(dress_id, color, size, quantity)
+      if (result.ok || result.action === 'skipped') {
+        success++
+      } else {
+        console.warn('Sync failed:', dress_id, color, size, result)
+        failed++
+      }
+    } catch (e) {
+      console.warn('Sync error:', e)
+      failed++
+    }
+  }
+
+  return { success, failed }
+}
+
+/**
+ * Sync all dresses to Shopify. Full sync fallback.
  * Returns { success, failed } counts.
  */
 export async function syncAllDresses(dresses) {
