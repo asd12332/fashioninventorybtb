@@ -18,7 +18,7 @@ Deno.serve(async (req: Request) => {
   // Get stored Shopify credentials
   const { data: config } = await supabase
     .from('shopify_config')
-    .select('shop, access_token')
+    .select('shop, access_token, location_id')
     .eq('id', 1)
     .single()
 
@@ -165,7 +165,6 @@ Deno.serve(async (req: Request) => {
         inventory_management: 'shopify',
         inventory_policy: 'deny',
         price: String(price),
-        image_id: colorImage?.id ?? undefined,
       }
       variantBody[`option${colorOptionPos}`] = color
       variantBody[`option${sizeOptionPos}`] = String(size)
@@ -213,7 +212,7 @@ Deno.serve(async (req: Request) => {
       }
 
       // Connect inventory item to location first (required for new variants)
-      await fetch(`https://${shop}/admin/api/2026-04/inventory_levels/connect.json`, {
+      const connectRes = await fetch(`https://${shop}/admin/api/2026-04/inventory_levels/connect.json`, {
         method: 'POST',
         headers: shopifyHeaders,
         body: JSON.stringify({
@@ -222,9 +221,10 @@ Deno.serve(async (req: Request) => {
           relocate_if_necessary: true,
         }),
       })
+      const connectData = await connectRes.json()
 
-      // Now set the inventory quantity
-      await fetch(`https://${shop}/admin/api/2026-04/inventory_levels/set.json`, {
+      // Set the inventory quantity
+      const setRes = await fetch(`https://${shop}/admin/api/2026-04/inventory_levels/set.json`, {
         method: 'POST',
         headers: shopifyHeaders,
         body: JSON.stringify({
@@ -233,8 +233,15 @@ Deno.serve(async (req: Request) => {
           available: quantity,
         }),
       })
+      const setData = await setRes.json()
 
-      return json({ ok: true, action: 'created_variant', variant_id })
+      return json({
+        ok: true,
+        action: 'created_variant',
+        variant_id,
+        connect: { ok: connectRes.ok, data: connectData },
+        inventory: { ok: setRes.ok, data: setData },
+      })
     }
 
     // Variant exists and quantity > 0 → update inventory level
