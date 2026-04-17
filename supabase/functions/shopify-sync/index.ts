@@ -63,14 +63,15 @@ Deno.serve(async (req: Request) => {
     let inventory_item_id = cached?.inventory_item_id
 
     // If not cached, look up product in Shopify by title "Dress {dress_id}"
+    let product: any = null
     if (!product_id) {
       const title = encodeURIComponent(`Dress ${dress_id}`)
       const pRes = await fetch(
-        `https://${shop}/admin/api/2026-04/products.json?title=${title}&fields=id,title,variants`,
+        `https://${shop}/admin/api/2026-04/products.json?title=${title}&fields=id,title,variants,options`,
         { headers: shopifyHeaders }
       )
       const pData = await pRes.json()
-      const product = pData.products?.find(
+      product = pData.products?.find(
         (p: any) => p.title.toLowerCase() === `dress ${dress_id}`.toLowerCase()
       )
 
@@ -103,17 +104,17 @@ Deno.serve(async (req: Request) => {
       }
     }
 
-    if (!variant_id) {
-      return json({ error: `Variant for ${color} size ${size} not found in Shopify` }, 404)
+    // If quantity is 0 and no variant exists → nothing to do
+    if (quantity === 0 && !variant_id) {
+      return json({ ok: true, action: 'skipped', reason: 'variant does not exist' })
     }
 
-    // If quantity is 0 → delete the variant
-    if (quantity === 0) {
+    // If quantity is 0 and variant exists → delete it
+    if (quantity === 0 && variant_id) {
       const delRes = await fetch(
         `https://${shop}/admin/api/2026-04/products/${product_id}/variants/${variant_id}.json`,
         { method: 'DELETE', headers: shopifyHeaders }
       )
-      // Remove from cache
       await supabase.from('shopify_products')
         .delete()
         .eq('dress_id', dress_id)
@@ -123,7 +124,78 @@ Deno.serve(async (req: Request) => {
       return json({ ok: true, action: 'deleted_variant', status: delRes.status })
     }
 
-    // Otherwise → update inventory level
+    // If variant doesn't exist yet and quantity > 0 → create it
+    if (!variant_id) {
+      // Fetch product options to determine which option slot is color vs size
+      if (!product) {
+        const pRes = await fetch(
+          `https://${shop}/admin/api/2026-04/products/${product_id}.json?fields=id,variants,options`,
+          { headers: shopifyHeaders }
+        )
+        const pData = await pRes.json()
+        product = pData.product
+      }
+
+      const options = product?.options || []
+      const colorOptionPos = options.find((o: any) =>
+        ['color', 'colour', 'لون'].includes(o.name.toLowerCase())
+      )?.position ?? 1
+      const sizeOptionPos = options.find((o: any) =>
+        ['size', 'مقاس', 'مقاسات'].includes(o.name.toLowerCase())
+      )?.position ?? 2
+
+      const variantBody: any = {
+        option1: null, option2: null, option3: null,
+        inventory_management: 'shopify',
+        inventory_policy: 'deny',
+      }
+      variantBody[`option${colorOptionPos}`] = color
+      variantBody[`option${sizeOptionPos}`] = String(size)
+
+      const createRes = await fetch(
+        `https://${shop}/admin/api/2026-04/products/${product_id}/variants.json`,
+        {
+          method: 'POST',
+          headers: shopifyHeaders,
+          body: JSON.stringify({ variant: variantBody }),
+        }
+      )
+      const createData = await createRes.json()
+      const newVariant = createData.variant
+
+      if (!newVariant) {
+        return json({ error: 'Failed to create variant', details: createData }, 500)
+      }
+
+      variant_id = newVariant.id
+      inventory_item_id = newVariant.inventory_item_id
+
+      // Cache the new variant
+      await supabase.from('shopify_products').upsert({
+        dress_id,
+        color,
+        size: String(size),
+        shopify_product_id: String(product_id),
+        shopify_variant_id: String(variant_id),
+        inventory_item_id: String(inventory_item_id),
+        location_id: String(location_id),
+      })
+
+      // Set inventory for newly created variant
+      await fetch(`https://${shop}/admin/api/2026-04/inventory_levels/set.json`, {
+        method: 'POST',
+        headers: shopifyHeaders,
+        body: JSON.stringify({
+          location_id: Number(location_id),
+          inventory_item_id: Number(inventory_item_id),
+          available: quantity,
+        }),
+      })
+
+      return json({ ok: true, action: 'created_variant', variant_id })
+    }
+
+    // Variant exists and quantity > 0 → update inventory level
     const invRes = await fetch(
       `https://${shop}/admin/api/2026-04/inventory_levels/set.json`,
       {
