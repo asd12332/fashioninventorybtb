@@ -1,9 +1,14 @@
 const SYNC_URL = 'https://vcursretyrfmkgigmwss.supabase.co/functions/v1/shopify-sync'
+const ANON_KEY = 'sb_publishable_HSLXAaTslgID8pEdYcbgnQ_pClqgs3j'
 
 async function syncOne(dressId, colorName, size, quantity) {
   const res = await fetch(SYNC_URL, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${ANON_KEY}`,
+      'apikey': ANON_KEY,
+    },
     body: JSON.stringify({ action: 'sync_size', dress_id: dressId, color: colorName, size, quantity }),
   })
   return res.json()
