@@ -5,6 +5,7 @@ import {
   addDress, updateDress, deleteDress, getDresses,
   addColorToDress, updateColorImage, deleteColor,
   bulkSetSizes, computeStats, searchDresses, resetDressQuantities,
+  setSizeQuantity,
 } from './inventory.js';
 import { syncPendingChanges, syncAllDresses } from './shopify.js';
 import { scanDressCard } from './scan.js';
@@ -17,7 +18,7 @@ let searchTimeout = null;
 let addModeColors = []; // tracks color entries when adding a new dress
 let addColorCounter = 0; // unique ID for each color entry in add mode
 let selectMode = false;
-let selectedDressId = null;
+let selectedDressIds = new Set();
 
 // ─── FILTER / SORT STATE ────────────────────────────────────
 const PENDING_KEY = 'pendingShopifySync.v1';
@@ -51,8 +52,7 @@ function updateSyncBadge() {
 }
 
 let filterColor = '';       // '' = all
-let filterPriceMin = '';
-let filterPriceMax = '';
+let filterPrice = '';
 let sortOrder = 'desc';     // 'asc' | 'desc' by ID
 let gridCols = 3;           // cards per row
 
@@ -208,12 +208,8 @@ function renderShell() {
         </select>
       </div>
       <div class="filter-group">
-        <label for="filterPriceMin">Price</label>
-        <div class="price-range-inputs">
-          <input type="number" id="filterPriceMin" placeholder="Min" min="0" />
-          <span class="price-separator">–</span>
-          <input type="number" id="filterPriceMax" placeholder="Max" min="0" />
-        </div>
+        <label for="filterPrice">Price</label>
+        <input type="number" id="filterPrice" placeholder="e.g. 80" min="0" />
       </div>
       <div class="filter-group">
         <label for="sortOrder">Sort</label>
@@ -273,15 +269,13 @@ function renderShell() {
 
   // Filter / sort listeners
   document.getElementById('filterColor').addEventListener('change', (e) => { filterColor = e.target.value; renderGrid(); });
-  document.getElementById('filterPriceMin').addEventListener('input', (e) => { filterPriceMin = e.target.value; renderGrid(); });
-  document.getElementById('filterPriceMax').addEventListener('input', (e) => { filterPriceMax = e.target.value; renderGrid(); });
+  document.getElementById('filterPrice').addEventListener('input', (e) => { filterPrice = e.target.value; renderGrid(); });
   document.getElementById('sortOrder').addEventListener('change', (e) => { sortOrder = e.target.value; renderGrid(); });
   document.getElementById('gridCols').addEventListener('change', (e) => { gridCols = parseInt(e.target.value); renderGrid(); });
   document.getElementById('btnResetFilters').addEventListener('click', () => {
-    filterColor = ''; filterPriceMin = ''; filterPriceMax = ''; sortOrder = 'desc'; gridCols = 3;
+    filterColor = ''; filterPrice = ''; sortOrder = 'desc'; gridCols = 3;
     document.getElementById('filterColor').value = '';
-    document.getElementById('filterPriceMin').value = '';
-    document.getElementById('filterPriceMax').value = '';
+    document.getElementById('filterPrice').value = '';
     document.getElementById('sortOrder').value = 'desc';
     document.getElementById('gridCols').value = '3';
     renderGrid();
@@ -396,8 +390,7 @@ function renderGrid() {
     }
     // Price filter
     const price = Number(dress.price) || 0;
-    if (filterPriceMin !== '' && price < Number(filterPriceMin)) return false;
-    if (filterPriceMax !== '' && price > Number(filterPriceMax)) return false;
+    if (filterPrice !== '' && price !== Number(filterPrice)) return false;
     return true;
   });
 
@@ -429,7 +422,7 @@ function renderGrid() {
     const colorCount = dress.dress_colors?.length || 0;
     const isSoldOut = totalPieces === 0;
 
-    const isSelected = selectedDressId === dress.id;
+    const isSelected = selectedDressIds.has(dress.id);
     return `
       <div class="dress-card${isSoldOut ? ' sold-out' : ''}${isSelected ? ' selected' : ''}${selectMode ? ' select-mode' : ''}" data-id="${dress.id}">
         <div class="card-image" style="${firstColor?.image_url ? `background-image:url(${firstColor.image_url})` : ''}">
@@ -479,7 +472,8 @@ function renderGrid() {
       const id = card.dataset.id;
       if (selectMode) {
         e.stopPropagation();
-        selectedDressId = selectedDressId === id ? null : id;
+        if (selectedDressIds.has(id)) selectedDressIds.delete(id);
+        else selectedDressIds.add(id);
         renderGrid();
         updateSelectionUI();
         return;
@@ -499,7 +493,7 @@ function renderGrid() {
 
 function toggleSelectMode() {
   selectMode = !selectMode;
-  selectedDressId = null;
+  selectedDressIds = new Set();
   const btn = document.getElementById('btnSelect');
   btn.classList.toggle('btn-primary', selectMode);
   btn.classList.toggle('btn-ghost', !selectMode);
@@ -509,27 +503,34 @@ function toggleSelectMode() {
 }
 
 function updateSelectionUI() {
-  const hasSelection = selectMode && !!selectedDressId;
-  document.getElementById('btnReset').style.display = hasSelection ? '' : 'none';
-  document.getElementById('btnDeleteSelected').style.display = hasSelection ? '' : 'none';
+  const count = selectMode ? selectedDressIds.size : 0;
+  const hasSelection = count > 0;
+  const resetBtn = document.getElementById('btnReset');
+  const delBtn = document.getElementById('btnDeleteSelected');
+  resetBtn.style.display = hasSelection ? '' : 'none';
+  delBtn.style.display = hasSelection ? '' : 'none';
+  if (hasSelection) {
+    resetBtn.querySelector('span').textContent = `Reset (${count})`;
+    delBtn.querySelector('span').textContent = `Delete (${count})`;
+  }
 }
 
 async function handleResetSelected() {
-  if (!selectedDressId) return;
-  if (!confirm(`Reset all quantities of dress ${selectedDressId} to 0?`)) return;
+  const ids = Array.from(selectedDressIds);
+  if (ids.length === 0) return;
+  if (!confirm(`Reset all quantities to 0 for ${ids.length} dress${ids.length > 1 ? 'es' : ''}?`)) return;
   try {
-    const priorSizes = await resetDressQuantities(selectedDressId);
-    const dress = allDresses.find((d) => d.id === selectedDressId);
-    // Queue sync: set qty=0 for every size that had non-zero qty
-    for (const color of dress?.dress_colors || []) {
-      for (const sz of color.dress_sizes || []) {
-        if ((sz.quantity || 0) > 0) {
-          queueChange(selectedDressId, color.color_name, sz.size, 0);
+    for (const id of ids) {
+      await resetDressQuantities(id);
+      const dress = allDresses.find((d) => d.id === id);
+      for (const color of dress?.dress_colors || []) {
+        for (const sz of color.dress_sizes || []) {
+          if ((sz.quantity || 0) > 0) queueChange(id, color.color_name, sz.size, 0);
         }
       }
     }
-    showToast(`Dress ${selectedDressId} reset to 0.`, 'success');
-    selectedDressId = null;
+    showToast(`${ids.length} dress${ids.length > 1 ? 'es' : ''} reset to 0.`, 'success');
+    selectedDressIds = new Set();
     await loadDresses();
     updateSelectionUI();
   } catch (err) {
@@ -538,19 +539,21 @@ async function handleResetSelected() {
 }
 
 async function handleDeleteSelected() {
-  if (!selectedDressId) return;
-  const id = selectedDressId;
-  if (!confirm(`Delete dress ${id}? This cannot be undone.`)) return;
+  const ids = Array.from(selectedDressIds);
+  if (ids.length === 0) return;
+  if (!confirm(`Delete ${ids.length} dress${ids.length > 1 ? 'es' : ''}? This cannot be undone.`)) return;
   try {
-    const dressToDelete = allDresses.find((d) => d.id === id);
-    await deleteDress(id);
-    for (const color of dressToDelete?.dress_colors || []) {
-      for (const sz of color.dress_sizes || []) {
-        queueChange(id, color.color_name, sz.size, 0);
+    for (const id of ids) {
+      const dressToDelete = allDresses.find((d) => d.id === id);
+      await deleteDress(id);
+      for (const color of dressToDelete?.dress_colors || []) {
+        for (const sz of color.dress_sizes || []) {
+          queueChange(id, color.color_name, sz.size, 0);
+        }
       }
     }
-    showToast(`Dress ${id} deleted.`, 'success');
-    selectedDressId = null;
+    showToast(`${ids.length} dress${ids.length > 1 ? 'es' : ''} deleted.`, 'success');
+    selectedDressIds = new Set();
     await loadDresses();
     updateSelectionUI();
   } catch (err) {
@@ -569,22 +572,69 @@ async function handleScanFile(e) {
   try {
     const result = await scanDressCard(file);
     const dressId = (result?.dress_id || '').toString().trim();
-    if (!dressId) {
-      showToast('AI could not read a dress ID from the photo.', 'error');
-      return;
-    }
+    const colorName = (result?.color || '').toString().trim();
+    const size = parseInt(result?.size);
+
+    if (!dressId) { showToast('AI could not read a dress ID from the photo.', 'error'); return; }
+
     const match = allDresses.find((d) => d.id === dressId || d.id === dressId.padStart(3, '0'));
-    if (!match) {
-      showToast(`No dress "${dressId}" found in inventory.`, 'error');
+    if (!match) { showToast(`No dress "${dressId}" found in inventory.`, 'error'); return; }
+
+    if (!colorName || !size) {
+      showToast(`Read dress ${match.id} but no color/size — opening edit view.`, 'error');
+      openEditModal(match.id);
       return;
     }
-    showToast(`Found dress ${match.id} — opening...`, 'success');
-    openEditModal(match.id);
+
+    const color = match.dress_colors?.find((c) => c.color_name.toLowerCase() === colorName.toLowerCase());
+    if (!color) { showToast(`Dress ${match.id} has no color "${colorName}".`, 'error'); return; }
+
+    const sizeEntry = color.dress_sizes?.find((s) => s.size === size);
+    const currentQty = sizeEntry?.quantity || 0;
+
+    openScanActionModal(match, color, size, currentQty);
   } catch (err) {
     showToast('Scan failed: ' + err.message, 'error');
   } finally {
     btn.disabled = false;
     btn.innerHTML = original;
+  }
+}
+
+function openScanActionModal(dress, color, size, currentQty) {
+  const modal = document.getElementById('dressModal');
+  const overlay = document.getElementById('modalOverlay');
+  modal.innerHTML = `
+    <div class="confirm-dialog">
+      <div class="confirm-icon">📸</div>
+      <h2>Scanned: ${dress.id}</h2>
+      <p>
+        <strong>${color.color_name}</strong> · Size <strong>${size}</strong><br>
+        Current quantity: <strong>${currentQty}</strong>
+      </p>
+      <div class="form-actions" style="gap:8px;flex-wrap:wrap;justify-content:center">
+        <button class="btn btn-ghost" id="btnScanCancel">Cancel</button>
+        <button class="btn btn-primary" id="btnScanAdd">+ Add 1 (→ ${currentQty + 1})</button>
+        <button class="btn btn-danger" id="btnScanRemove" ${currentQty <= 0 ? 'disabled' : ''}>− Remove 1 (→ ${Math.max(0, currentQty - 1)})</button>
+      </div>
+    </div>
+  `;
+  overlay.classList.add('active');
+  modal.querySelector('#btnScanCancel').addEventListener('click', closeModal);
+  modal.querySelector('#btnScanAdd').addEventListener('click', () => applyScanDelta(dress.id, color, size, currentQty, +1));
+  modal.querySelector('#btnScanRemove').addEventListener('click', () => applyScanDelta(dress.id, color, size, currentQty, -1));
+}
+
+async function applyScanDelta(dressId, color, size, currentQty, delta) {
+  const newQty = Math.max(0, currentQty + delta);
+  try {
+    await setSizeQuantity(color.id, size, newQty);
+    queueChange(dressId, color.color_name, size, newQty);
+    showToast(`${color.color_name} size ${size}: ${currentQty} → ${newQty}`, 'success');
+    closeModal();
+    await loadDresses();
+  } catch (err) {
+    showToast('Update failed: ' + err.message, 'error');
   }
 }
 
