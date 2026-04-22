@@ -4,9 +4,10 @@ import { compressImage, formatBytes } from './imageCompressor.js';
 import {
   addDress, updateDress, deleteDress, getDresses,
   addColorToDress, updateColorImage, deleteColor,
-  bulkSetSizes, computeStats, searchDresses,
+  bulkSetSizes, computeStats, searchDresses, resetDressQuantities,
 } from './inventory.js';
 import { syncPendingChanges, syncAllDresses } from './shopify.js';
+import { scanDressCard } from './scan.js';
 
 // ─── STATE ──────────────────────────────────────────────────
 let allDresses = [];
@@ -15,6 +16,8 @@ let currentDressId = null;
 let searchTimeout = null;
 let addModeColors = []; // tracks color entries when adding a new dress
 let addColorCounter = 0; // unique ID for each color entry in add mode
+let selectMode = false;
+let selectedDressId = null;
 
 // ─── FILTER / SORT STATE ────────────────────────────────────
 const PENDING_KEY = 'pendingShopifySync.v1';
@@ -150,6 +153,32 @@ function renderShell() {
         </div>
       </div>
       <div class="header-right">
+        <button id="btnScan" class="btn btn-ghost" title="Scan dress card with AI">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+            <path d="M4 7V5a1 1 0 0 1 1-1h2M17 4h2a1 1 0 0 1 1 1v2M20 17v2a1 1 0 0 1-1 1h-2M7 20H5a1 1 0 0 1-1-1v-2"/>
+            <circle cx="12" cy="12" r="3"/>
+          </svg>
+          <span>Scan</span>
+        </button>
+        <button id="btnSelect" class="btn btn-ghost" title="Select a dress">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+          <span>Select</span>
+        </button>
+        <button id="btnReset" class="btn btn-ghost" title="Reset selected dress quantities to 0" style="display:none">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+            <path d="M3 12a9 9 0 1 0 9-9"/><polyline points="3 4 3 12 11 12"/>
+          </svg>
+          <span>Reset</span>
+        </button>
+        <button id="btnDeleteSelected" class="btn btn-ghost" title="Delete selected dress" style="display:none">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+            <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
+          </svg>
+          <span>Delete</span>
+        </button>
+        <input type="file" id="scanInput" accept="image/*" capture="environment" style="display:none" />
         <button id="btnSync" class="btn btn-ghost">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
             <path d="M4 12c0-4.418 3.582-8 8-8a8 8 0 0 1 6.32 3.09"/>
@@ -228,6 +257,11 @@ function renderShell() {
   // Event listeners
   document.getElementById('btnAdd').addEventListener('click', () => openAddModal());
   document.getElementById('btnSync').addEventListener('click', handleShopifySync);
+  document.getElementById('btnSelect').addEventListener('click', toggleSelectMode);
+  document.getElementById('btnReset').addEventListener('click', handleResetSelected);
+  document.getElementById('btnDeleteSelected').addEventListener('click', handleDeleteSelected);
+  document.getElementById('btnScan').addEventListener('click', () => document.getElementById('scanInput').click());
+  document.getElementById('scanInput').addEventListener('change', handleScanFile);
   updateSyncBadge();
   document.getElementById('searchInput').addEventListener('input', handleSearch);
   document.getElementById('modalOverlay').addEventListener('click', (e) => {
@@ -395,8 +429,9 @@ function renderGrid() {
     const colorCount = dress.dress_colors?.length || 0;
     const isSoldOut = totalPieces === 0;
 
+    const isSelected = selectedDressId === dress.id;
     return `
-      <div class="dress-card${isSoldOut ? ' sold-out' : ''}" data-id="${dress.id}">
+      <div class="dress-card${isSoldOut ? ' sold-out' : ''}${isSelected ? ' selected' : ''}${selectMode ? ' select-mode' : ''}" data-id="${dress.id}">
         <div class="card-image" style="${firstColor?.image_url ? `background-image:url(${firstColor.image_url})` : ''}">
           ${!firstColor?.image_url ? '<div class="no-image">👗</div>' : ''}
           <div class="card-badge">${dress.id}</div>
@@ -442,6 +477,13 @@ function renderGrid() {
     card.addEventListener('click', (e) => {
       const action = e.target.closest('[data-action]');
       const id = card.dataset.id;
+      if (selectMode) {
+        e.stopPropagation();
+        selectedDressId = selectedDressId === id ? null : id;
+        renderGrid();
+        updateSelectionUI();
+        return;
+      }
       if (action?.dataset.action === 'edit') {
         e.stopPropagation();
         openEditModal(id);
@@ -453,6 +495,97 @@ function renderGrid() {
       }
     });
   });
+}
+
+function toggleSelectMode() {
+  selectMode = !selectMode;
+  selectedDressId = null;
+  const btn = document.getElementById('btnSelect');
+  btn.classList.toggle('btn-primary', selectMode);
+  btn.classList.toggle('btn-ghost', !selectMode);
+  btn.querySelector('span').textContent = selectMode ? 'Cancel' : 'Select';
+  updateSelectionUI();
+  renderGrid();
+}
+
+function updateSelectionUI() {
+  const hasSelection = selectMode && !!selectedDressId;
+  document.getElementById('btnReset').style.display = hasSelection ? '' : 'none';
+  document.getElementById('btnDeleteSelected').style.display = hasSelection ? '' : 'none';
+}
+
+async function handleResetSelected() {
+  if (!selectedDressId) return;
+  if (!confirm(`Reset all quantities of dress ${selectedDressId} to 0?`)) return;
+  try {
+    const priorSizes = await resetDressQuantities(selectedDressId);
+    const dress = allDresses.find((d) => d.id === selectedDressId);
+    // Queue sync: set qty=0 for every size that had non-zero qty
+    for (const color of dress?.dress_colors || []) {
+      for (const sz of color.dress_sizes || []) {
+        if ((sz.quantity || 0) > 0) {
+          queueChange(selectedDressId, color.color_name, sz.size, 0);
+        }
+      }
+    }
+    showToast(`Dress ${selectedDressId} reset to 0.`, 'success');
+    selectedDressId = null;
+    await loadDresses();
+    updateSelectionUI();
+  } catch (err) {
+    showToast('Reset failed: ' + err.message, 'error');
+  }
+}
+
+async function handleDeleteSelected() {
+  if (!selectedDressId) return;
+  const id = selectedDressId;
+  if (!confirm(`Delete dress ${id}? This cannot be undone.`)) return;
+  try {
+    const dressToDelete = allDresses.find((d) => d.id === id);
+    await deleteDress(id);
+    for (const color of dressToDelete?.dress_colors || []) {
+      for (const sz of color.dress_sizes || []) {
+        queueChange(id, color.color_name, sz.size, 0);
+      }
+    }
+    showToast(`Dress ${id} deleted.`, 'success');
+    selectedDressId = null;
+    await loadDresses();
+    updateSelectionUI();
+  } catch (err) {
+    showToast('Delete failed: ' + err.message, 'error');
+  }
+}
+
+async function handleScanFile(e) {
+  const file = e.target.files?.[0];
+  e.target.value = '';
+  if (!file) return;
+  const btn = document.getElementById('btnScan');
+  const original = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Scanning...';
+  try {
+    const result = await scanDressCard(file);
+    const dressId = (result?.dress_id || '').toString().trim();
+    if (!dressId) {
+      showToast('AI could not read a dress ID from the photo.', 'error');
+      return;
+    }
+    const match = allDresses.find((d) => d.id === dressId || d.id === dressId.padStart(3, '0'));
+    if (!match) {
+      showToast(`No dress "${dressId}" found in inventory.`, 'error');
+      return;
+    }
+    showToast(`Found dress ${match.id} — opening...`, 'success');
+    openEditModal(match.id);
+  } catch (err) {
+    showToast('Scan failed: ' + err.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = original;
+  }
 }
 
 // ─── DETAIL VIEW ────────────────────────────────────────────

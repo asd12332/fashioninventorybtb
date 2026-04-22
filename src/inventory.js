@@ -223,6 +223,23 @@ export async function bulkSetSizes(dressColorId, sizesMap) {
   return Promise.all(promises);
 }
 
+export async function resetDressQuantities(dressId) {
+  const { data: colors } = await db()
+    .from('dress_colors')
+    .select('id')
+    .eq('dress_id', dressId);
+  if (!colors?.length) return [];
+  const colorIds = colors.map((c) => c.id);
+  const { data: sizes } = await db()
+    .from('dress_sizes')
+    .select('id, dress_color_id, size, quantity')
+    .in('dress_color_id', colorIds);
+  if (sizes?.length) {
+    await db().from('dress_sizes').update({ quantity: 0 }).in('dress_color_id', colorIds);
+  }
+  return sizes || [];
+}
+
 // ─── STATS ──────────────────────────────────────────────────
 
 export function computeStats(dresses) {
