@@ -1,5 +1,5 @@
-// Wasl Apps Script proxy URL — PASTE YOUR DEPLOYED /exec URL HERE
-export const WASL_URL = 'PASTE_YOUR_WASL_APPS_SCRIPT_EXEC_URL_HERE'
+const SCAN_URL = 'https://vcursretyrfmkgigmwss.supabase.co/functions/v1/dress-scan'
+const ANON_KEY = 'sb_publishable_HSLXAaTslgID8pEdYcbgnQ_pClqgs3j'
 
 function fileToBase64(file) {
   return new Promise((resolve, reject) => {
@@ -15,16 +15,17 @@ function fileToBase64(file) {
 }
 
 export async function scanDressCard(imageFile) {
-  if (!WASL_URL || WASL_URL.includes('PASTE_YOUR')) {
-    throw new Error('Wasl Apps Script URL not configured in src/scan.js')
-  }
   const { base64, mimeType } = await fileToBase64(imageFile)
-  const res = await fetch(WASL_URL, {
+  const res = await fetch(SCAN_URL, {
     method: 'POST',
-    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-    body: JSON.stringify({ action: 'scan_dress_card', image: base64, mimeType }),
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${ANON_KEY}`,
+      'apikey': ANON_KEY,
+    },
+    body: JSON.stringify({ image: base64, mimeType }),
   })
   const data = await res.json()
   if (data.error) throw new Error(data.error)
-  return data // { dress_id, colors: [...], sizes: [...] }
+  return data // { dress_id, color, size }
 }
