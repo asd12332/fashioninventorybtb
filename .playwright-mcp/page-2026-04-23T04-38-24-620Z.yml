@@ -1,0 +1,1426 @@
+- generic [ref=e11]:
+  - generic [ref=e12]:
+    - generic [ref=e13]:
+      - generic [ref=e14]:
+        - generic [ref=e15]: 👗
+        - generic [ref=e16]: BrideToBe
+      - generic [ref=e17]:
+        - img
+        - textbox "Search..." [ref=e18]
+    - generic [ref=e19]:
+      - combobox [ref=e20] [cursor=pointer]:
+        - option "All Colors" [selected]
+        - option "Black"
+        - option "White"
+        - option "Navy"
+        - option "Beige"
+        - option "Pistachio"
+        - option "Light Pistachio"
+        - option "Green"
+        - option "Dark Green"
+        - option "Turquoise"
+        - option "Baby Blue"
+        - option "Blue"
+        - option "Purple"
+        - option "Mouve"
+        - option "Pink"
+        - option "Dark Pink"
+        - option "Red"
+        - option "Orange"
+        - option "Yellow"
+        - option "Gold"
+        - option "Bronze"
+        - option "Rose gold"
+        - option "Brown"
+        - option "Silver"
+        - option "Grey"
+        - option "Gray"
+        - option "Clear"
+      - spinbutton [ref=e21] [cursor=pointer]
+      - combobox [ref=e22] [cursor=pointer]:
+        - 'option "ID: Newest" [selected]'
+        - 'option "ID: Oldest"'
+        - option "Price ↑"
+        - option "Price ↓"
+      - button "Reset" [ref=e23] [cursor=pointer]
+    - generic [ref=e24]:
+      - generic [ref=e25]:
+        - generic [ref=e26]: "62"
+        - generic [ref=e27]: Dresses
+      - generic [ref=e28]:
+        - generic [ref=e29]: "146"
+        - generic [ref=e30]: Color Variants
+      - generic [ref=e31]:
+        - generic [ref=e32]: "1"
+        - generic [ref=e33]: Total Pieces
+  - main [ref=e34]:
+    - generic [ref=e35]:
+      - generic [ref=e36] [cursor=pointer]:
+        - generic [ref=e37]:
+          - generic [ref=e38]: 👗
+          - generic [ref=e39]: "068"
+          - generic: SOLD OUT
+        - generic [ref=e40]:
+          - heading "068" [level=3] [ref=e41]
+          - generic [ref=e42]: $85
+          - generic [ref=e43]:
+            - generic [ref=e44]:
+              - generic [ref=e46]: Beige
+              - generic [ref=e48]: —
+            - generic [ref=e49]:
+              - generic [ref=e51]: White
+              - generic [ref=e53]: —
+            - generic [ref=e54]:
+              - generic [ref=e56]: Light Pink
+              - generic [ref=e58]: —
+          - generic [ref=e59]:
+            - generic [ref=e60]: Sold Out
+            - generic [ref=e61]:
+              - button "Edit" [ref=e62]:
+                - img [ref=e63]
+              - button "Delete" [ref=e66]:
+                - img [ref=e67]
+      - generic [ref=e69] [cursor=pointer]:
+        - generic [ref=e70]:
+          - generic [ref=e71]: "067"
+          - generic: SOLD OUT
+        - generic [ref=e72]:
+          - heading "067" [level=3] [ref=e73]
+          - generic [ref=e74]: $90
+          - generic [ref=e75]:
+            - generic [ref=e76]:
+              - generic [ref=e78]: Navy Blue
+              - generic [ref=e80]: —
+            - generic [ref=e81]:
+              - generic [ref=e83]: Pink
+              - generic [ref=e85]: —
+            - generic [ref=e86]:
+              - generic [ref=e88]: Black
+              - generic [ref=e90]: —
+          - generic [ref=e91]:
+            - generic [ref=e92]: Sold Out
+            - generic [ref=e93]:
+              - button "Edit" [ref=e94]:
+                - img [ref=e95]
+              - button "Delete" [ref=e98]:
+                - img [ref=e99]
+      - generic [ref=e101] [cursor=pointer]:
+        - generic [ref=e102]:
+          - generic [ref=e103]: "066"
+          - generic: SOLD OUT
+        - generic [ref=e104]:
+          - heading "066" [level=3] [ref=e105]
+          - generic [ref=e106]: $160
+          - generic [ref=e108]:
+            - generic [ref=e110]: Black
+            - generic [ref=e112]: —
+          - generic [ref=e113]:
+            - generic [ref=e114]: Sold Out
+            - generic [ref=e115]:
+              - button "Edit" [ref=e116]:
+                - img [ref=e117]
+              - button "Delete" [ref=e120]:
+                - img [ref=e121]
+      - generic [ref=e123] [cursor=pointer]:
+        - generic [ref=e124]:
+          - generic [ref=e125]: "065"
+          - generic: SOLD OUT
+        - generic [ref=e126]:
+          - heading "065" [level=3] [ref=e127]
+          - generic [ref=e128]: $160
+          - generic [ref=e130]:
+            - generic [ref=e132]: Black
+            - generic [ref=e134]: —
+          - generic [ref=e135]:
+            - generic [ref=e136]: Sold Out
+            - generic [ref=e137]:
+              - button "Edit" [ref=e138]:
+                - img [ref=e139]
+              - button "Delete" [ref=e142]:
+                - img [ref=e143]
+      - generic [ref=e145] [cursor=pointer]:
+        - generic [ref=e146]:
+          - generic [ref=e147]: "064"
+          - generic: SOLD OUT
+        - generic [ref=e148]:
+          - heading "064" [level=3] [ref=e149]
+          - generic [ref=e150]: $130
+          - generic [ref=e151]:
+            - generic [ref=e152]:
+              - generic [ref=e154]: Royal Blue
+              - generic [ref=e156]: —
+            - generic [ref=e157]:
+              - generic [ref=e159]: Purple
+              - generic [ref=e161]: —
+          - generic [ref=e162]:
+            - generic [ref=e163]: Sold Out
+            - generic [ref=e164]:
+              - button "Edit" [ref=e165]:
+                - img [ref=e166]
+              - button "Delete" [ref=e169]:
+                - img [ref=e170]
+      - generic [ref=e172] [cursor=pointer]:
+        - generic [ref=e173]:
+          - generic [ref=e174]: "063"
+          - generic: SOLD OUT
+        - generic [ref=e175]:
+          - heading "063" [level=3] [ref=e176]
+          - generic [ref=e177]: $120
+          - generic [ref=e178]:
+            - generic [ref=e179]:
+              - generic [ref=e181]: Royal Blue
+              - generic [ref=e183]: —
+            - generic [ref=e184]:
+              - generic [ref=e186]: Burgundy
+              - generic [ref=e188]: —
+          - generic [ref=e189]:
+            - generic [ref=e190]: Sold Out
+            - generic [ref=e191]:
+              - button "Edit" [ref=e192]:
+                - img [ref=e193]
+              - button "Delete" [ref=e196]:
+                - img [ref=e197]
+      - generic [ref=e199] [cursor=pointer]:
+        - generic [ref=e200]:
+          - generic [ref=e201]: "062"
+          - generic: SOLD OUT
+        - generic [ref=e202]:
+          - heading "062" [level=3] [ref=e203]
+          - generic [ref=e204]: $145
+          - generic [ref=e205]:
+            - generic [ref=e206]:
+              - generic [ref=e208]: Black
+              - generic [ref=e210]: —
+            - generic [ref=e211]:
+              - generic [ref=e213]: Navy Blue
+              - generic [ref=e215]: —
+          - generic [ref=e216]:
+            - generic [ref=e217]: Sold Out
+            - generic [ref=e218]:
+              - button "Edit" [ref=e219]:
+                - img [ref=e220]
+              - button "Delete" [ref=e223]:
+                - img [ref=e224]
+      - generic [ref=e226] [cursor=pointer]:
+        - generic [ref=e227]:
+          - generic [ref=e228]: "061"
+          - generic: SOLD OUT
+        - generic [ref=e229]:
+          - heading "061" [level=3] [ref=e230]
+          - generic [ref=e231]: $140
+          - generic [ref=e232]:
+            - generic [ref=e233]:
+              - generic [ref=e235]: Purple
+              - generic [ref=e237]: —
+            - generic [ref=e238]:
+              - generic [ref=e240]: Burgundy
+              - generic [ref=e242]: —
+            - generic [ref=e243]:
+              - generic [ref=e245]: Silver
+              - generic [ref=e247]: —
+          - generic [ref=e248]:
+            - generic [ref=e249]: Sold Out
+            - generic [ref=e250]:
+              - button "Edit" [ref=e251]:
+                - img [ref=e252]
+              - button "Delete" [ref=e255]:
+                - img [ref=e256]
+      - generic [ref=e258] [cursor=pointer]:
+        - generic [ref=e259]:
+          - generic [ref=e260]: "060"
+          - generic: SOLD OUT
+        - generic [ref=e261]:
+          - heading "060" [level=3] [ref=e262]
+          - generic [ref=e263]: $100
+          - generic [ref=e264]:
+            - generic [ref=e265]:
+              - generic [ref=e267]: Beige
+              - generic [ref=e269]: —
+            - generic [ref=e270]:
+              - generic [ref=e272]: Pink
+              - generic [ref=e274]: —
+            - generic [ref=e275]:
+              - generic [ref=e277]: Navy Blue
+              - generic [ref=e279]: —
+            - generic [ref=e280]:
+              - generic [ref=e282]: Turqoise
+              - generic [ref=e284]: —
+            - generic [ref=e285]:
+              - generic [ref=e287]: Purple
+              - generic [ref=e289]: —
+          - generic [ref=e290]:
+            - generic [ref=e291]: Sold Out
+            - generic [ref=e292]:
+              - button "Edit" [ref=e293]:
+                - img [ref=e294]
+              - button "Delete" [ref=e297]:
+                - img [ref=e298]
+      - generic [ref=e300] [cursor=pointer]:
+        - generic [ref=e301]:
+          - generic [ref=e302]: "059"
+          - generic: SOLD OUT
+        - generic [ref=e303]:
+          - heading "059" [level=3] [ref=e304]
+          - generic [ref=e305]: $85
+          - generic [ref=e307]:
+            - generic [ref=e309]: Burgundy
+            - generic [ref=e311]: —
+          - generic [ref=e312]:
+            - generic [ref=e313]: Sold Out
+            - generic [ref=e314]:
+              - button "Edit" [ref=e315]:
+                - img [ref=e316]
+              - button "Delete" [ref=e319]:
+                - img [ref=e320]
+      - generic [ref=e322] [cursor=pointer]:
+        - generic [ref=e323]:
+          - generic [ref=e324]: "058"
+          - generic: SOLD OUT
+        - generic [ref=e325]:
+          - heading "058" [level=3] [ref=e326]
+          - generic [ref=e327]: $90
+          - generic [ref=e329]:
+            - generic [ref=e331]: Light Pink
+            - generic [ref=e333]: —
+          - generic [ref=e334]:
+            - generic [ref=e335]: Sold Out
+            - generic [ref=e336]:
+              - button "Edit" [ref=e337]:
+                - img [ref=e338]
+              - button "Delete" [ref=e341]:
+                - img [ref=e342]
+      - generic [ref=e344] [cursor=pointer]:
+        - generic [ref=e345]:
+          - generic [ref=e346]: "057"
+          - generic: SOLD OUT
+        - generic [ref=e347]:
+          - heading "057" [level=3] [ref=e348]
+          - generic [ref=e349]: $100
+          - generic [ref=e351]:
+            - generic [ref=e353]: Light Pink
+            - generic [ref=e355]: —
+          - generic [ref=e356]:
+            - generic [ref=e357]: Sold Out
+            - generic [ref=e358]:
+              - button "Edit" [ref=e359]:
+                - img [ref=e360]
+              - button "Delete" [ref=e363]:
+                - img [ref=e364]
+      - generic [ref=e366] [cursor=pointer]:
+        - generic [ref=e367]:
+          - generic [ref=e368]: "056"
+          - generic: SOLD OUT
+        - generic [ref=e369]:
+          - heading "056" [level=3] [ref=e370]
+          - generic [ref=e371]: $85
+          - generic [ref=e372]:
+            - generic [ref=e373]:
+              - generic [ref=e375]: Beige
+              - generic [ref=e377]: —
+            - generic [ref=e378]:
+              - generic [ref=e380]: Burgundy
+              - generic [ref=e382]: —
+          - generic [ref=e383]:
+            - generic [ref=e384]: Sold Out
+            - generic [ref=e385]:
+              - button "Edit" [ref=e386]:
+                - img [ref=e387]
+              - button "Delete" [ref=e390]:
+                - img [ref=e391]
+      - generic [ref=e393] [cursor=pointer]:
+        - generic [ref=e394]:
+          - generic [ref=e395]: "055"
+          - generic: SOLD OUT
+        - generic [ref=e396]:
+          - heading "055" [level=3] [ref=e397]
+          - generic [ref=e398]: $85
+          - generic [ref=e399]:
+            - generic [ref=e400]:
+              - generic [ref=e402]: Light Pink
+              - generic [ref=e404]: —
+            - generic [ref=e405]:
+              - generic [ref=e407]: White
+              - generic [ref=e409]: —
+          - generic [ref=e410]:
+            - generic [ref=e411]: Sold Out
+            - generic [ref=e412]:
+              - button "Edit" [ref=e413]:
+                - img [ref=e414]
+              - button "Delete" [ref=e417]:
+                - img [ref=e418]
+      - generic [ref=e420] [cursor=pointer]:
+        - generic [ref=e421]:
+          - generic [ref=e422]: "054"
+          - generic: SOLD OUT
+        - generic [ref=e423]:
+          - heading "054" [level=3] [ref=e424]
+          - generic [ref=e425]: $90
+          - generic [ref=e426]:
+            - generic [ref=e427]:
+              - generic [ref=e429]: Light Pink
+              - generic [ref=e431]: —
+            - generic [ref=e432]:
+              - generic [ref=e434]: Turqoise
+              - generic [ref=e436]: —
+          - generic [ref=e437]:
+            - generic [ref=e438]: Sold Out
+            - generic [ref=e439]:
+              - button "Edit" [ref=e440]:
+                - img [ref=e441]
+              - button "Delete" [ref=e444]:
+                - img [ref=e445]
+      - generic [ref=e447] [cursor=pointer]:
+        - generic [ref=e448]:
+          - generic [ref=e449]: "053"
+          - generic: SOLD OUT
+        - generic [ref=e450]:
+          - heading "053" [level=3] [ref=e451]
+          - generic [ref=e452]: $90
+          - generic [ref=e454]:
+            - generic [ref=e456]: Light Pink
+            - generic [ref=e458]: —
+          - generic [ref=e459]:
+            - generic [ref=e460]: Sold Out
+            - generic [ref=e461]:
+              - button "Edit" [ref=e462]:
+                - img [ref=e463]
+              - button "Delete" [ref=e466]:
+                - img [ref=e467]
+      - generic [ref=e469] [cursor=pointer]:
+        - generic [ref=e470]:
+          - generic [ref=e471]: "052"
+          - generic: SOLD OUT
+        - generic [ref=e472]:
+          - heading "052" [level=3] [ref=e473]
+          - generic [ref=e474]: $85
+          - generic [ref=e475]:
+            - generic [ref=e476]:
+              - generic [ref=e478]: Burgundy
+              - generic [ref=e480]: —
+            - generic [ref=e481]:
+              - generic [ref=e483]: Light Pink
+              - generic [ref=e485]: —
+            - generic [ref=e486]:
+              - generic [ref=e488]: White
+              - generic [ref=e490]: —
+          - generic [ref=e491]:
+            - generic [ref=e492]: Sold Out
+            - generic [ref=e493]:
+              - button "Edit" [ref=e494]:
+                - img [ref=e495]
+              - button "Delete" [ref=e498]:
+                - img [ref=e499]
+      - generic [ref=e501] [cursor=pointer]:
+        - generic [ref=e502]:
+          - generic [ref=e503]: "051"
+          - generic: SOLD OUT
+        - generic [ref=e504]:
+          - heading "051" [level=3] [ref=e505]
+          - generic [ref=e506]: $85
+          - generic [ref=e507]:
+            - generic [ref=e508]:
+              - generic [ref=e510]: Beige
+              - generic [ref=e512]: —
+            - generic [ref=e513]:
+              - generic [ref=e515]: Turqoise
+              - generic [ref=e517]: —
+            - generic [ref=e518]:
+              - generic [ref=e520]: Light Pink
+              - generic [ref=e522]: —
+            - generic [ref=e523]:
+              - generic [ref=e525]: Burgundy
+              - generic [ref=e527]: —
+          - generic [ref=e528]:
+            - generic [ref=e529]: Sold Out
+            - generic [ref=e530]:
+              - button "Edit" [ref=e531]:
+                - img [ref=e532]
+              - button "Delete" [ref=e535]:
+                - img [ref=e536]
+      - generic [ref=e538] [cursor=pointer]:
+        - generic [ref=e539]:
+          - generic [ref=e540]: "050"
+          - generic: SOLD OUT
+        - generic [ref=e541]:
+          - heading "050" [level=3] [ref=e542]
+          - generic [ref=e543]: $90
+          - generic [ref=e544]:
+            - generic [ref=e545]:
+              - generic [ref=e547]: Turqoise
+              - generic [ref=e549]: —
+            - generic [ref=e550]:
+              - generic [ref=e552]: Burgundy
+              - generic [ref=e554]: —
+          - generic [ref=e555]:
+            - generic [ref=e556]: Sold Out
+            - generic [ref=e557]:
+              - button "Edit" [ref=e558]:
+                - img [ref=e559]
+              - button "Delete" [ref=e562]:
+                - img [ref=e563]
+      - generic [ref=e565] [cursor=pointer]:
+        - generic [ref=e566]:
+          - generic [ref=e567]: "049"
+          - generic: SOLD OUT
+        - generic [ref=e568]:
+          - heading "049" [level=3] [ref=e569]
+          - generic [ref=e570]: $90
+          - generic [ref=e571]:
+            - generic [ref=e572]:
+              - generic [ref=e574]: Light Pink
+              - generic [ref=e576]: —
+            - generic [ref=e577]:
+              - generic [ref=e579]: White
+              - generic [ref=e581]: —
+          - generic [ref=e582]:
+            - generic [ref=e583]: Sold Out
+            - generic [ref=e584]:
+              - button "Edit" [ref=e585]:
+                - img [ref=e586]
+              - button "Delete" [ref=e589]:
+                - img [ref=e590]
+      - generic [ref=e592] [cursor=pointer]:
+        - generic [ref=e593]:
+          - generic [ref=e594]: "048"
+          - generic: SOLD OUT
+        - generic [ref=e595]:
+          - heading "048" [level=3] [ref=e596]
+          - generic [ref=e597]: $85
+          - generic [ref=e599]:
+            - generic [ref=e601]: White
+            - generic [ref=e603]: —
+          - generic [ref=e604]:
+            - generic [ref=e605]: Sold Out
+            - generic [ref=e606]:
+              - button "Edit" [ref=e607]:
+                - img [ref=e608]
+              - button "Delete" [ref=e611]:
+                - img [ref=e612]
+      - generic [ref=e614] [cursor=pointer]:
+        - generic [ref=e615]:
+          - generic [ref=e616]: "047"
+          - generic: SOLD OUT
+        - generic [ref=e617]:
+          - heading "047" [level=3] [ref=e618]
+          - generic [ref=e619]: $85
+          - generic [ref=e620]:
+            - generic [ref=e621]:
+              - generic [ref=e623]: Light Pink
+              - generic [ref=e625]: —
+            - generic [ref=e626]:
+              - generic [ref=e628]: Burgundy
+              - generic [ref=e630]: —
+            - generic [ref=e631]:
+              - generic [ref=e633]: Royal Blue
+              - generic [ref=e635]: —
+            - generic [ref=e636]:
+              - generic [ref=e638]: Turqoise
+              - generic [ref=e640]: —
+          - generic [ref=e641]:
+            - generic [ref=e642]: Sold Out
+            - generic [ref=e643]:
+              - button "Edit" [ref=e644]:
+                - img [ref=e645]
+              - button "Delete" [ref=e648]:
+                - img [ref=e649]
+      - generic [ref=e651] [cursor=pointer]:
+        - generic [ref=e652]:
+          - generic [ref=e653]: "046"
+          - generic: SOLD OUT
+        - generic [ref=e654]:
+          - heading "046" [level=3] [ref=e655]
+          - generic [ref=e656]: $100
+          - generic [ref=e658]:
+            - generic [ref=e660]: Light Pink
+            - generic [ref=e662]: —
+          - generic [ref=e663]:
+            - generic [ref=e664]: Sold Out
+            - generic [ref=e665]:
+              - button "Edit" [ref=e666]:
+                - img [ref=e667]
+              - button "Delete" [ref=e670]:
+                - img [ref=e671]
+      - generic [ref=e673] [cursor=pointer]:
+        - generic [ref=e674]:
+          - generic [ref=e675]: "039"
+          - generic: SOLD OUT
+        - generic [ref=e676]:
+          - heading "039" [level=3] [ref=e677]
+          - generic [ref=e678]: $130
+          - generic [ref=e679]:
+            - generic [ref=e680]:
+              - generic [ref=e682]: Black
+              - generic [ref=e684]: —
+            - generic [ref=e685]:
+              - generic [ref=e687]: Silver
+              - generic [ref=e689]: —
+          - generic [ref=e690]:
+            - generic [ref=e691]: Sold Out
+            - generic [ref=e692]:
+              - button "Edit" [ref=e693]:
+                - img [ref=e694]
+              - button "Delete" [ref=e697]:
+                - img [ref=e698]
+      - generic [ref=e700] [cursor=pointer]:
+        - generic [ref=e701]:
+          - generic [ref=e702]: "038"
+          - generic: SOLD OUT
+        - generic [ref=e703]:
+          - heading "038" [level=3] [ref=e704]
+          - generic [ref=e705]: $90
+          - generic [ref=e707]:
+            - generic [ref=e709]: Turqoise
+            - generic [ref=e711]: —
+          - generic [ref=e712]:
+            - generic [ref=e713]: Sold Out
+            - generic [ref=e714]:
+              - button "Edit" [ref=e715]:
+                - img [ref=e716]
+              - button "Delete" [ref=e719]:
+                - img [ref=e720]
+      - generic [ref=e722] [cursor=pointer]:
+        - generic [ref=e723]:
+          - generic [ref=e724]: "037"
+          - generic: SOLD OUT
+        - generic [ref=e725]:
+          - heading "037" [level=3] [ref=e726]
+          - generic [ref=e727]: $140
+          - generic [ref=e729]:
+            - generic [ref=e731]: Turqoise
+            - generic [ref=e733]: —
+          - generic [ref=e734]:
+            - generic [ref=e735]: Sold Out
+            - generic [ref=e736]:
+              - button "Edit" [ref=e737]:
+                - img [ref=e738]
+              - button "Delete" [ref=e741]:
+                - img [ref=e742]
+      - generic [ref=e744] [cursor=pointer]:
+        - generic [ref=e745]:
+          - generic [ref=e746]: "036"
+          - generic: SOLD OUT
+        - generic [ref=e747]:
+          - heading "036" [level=3] [ref=e748]
+          - generic [ref=e749]: $145
+          - generic [ref=e750]:
+            - generic [ref=e751]:
+              - generic [ref=e753]: Black
+              - generic [ref=e755]: —
+            - generic [ref=e756]:
+              - generic [ref=e758]: Navy Blue
+              - generic [ref=e760]: —
+          - generic [ref=e761]:
+            - generic [ref=e762]: Sold Out
+            - generic [ref=e763]:
+              - button "Edit" [ref=e764]:
+                - img [ref=e765]
+              - button "Delete" [ref=e768]:
+                - img [ref=e769]
+      - generic [ref=e771] [cursor=pointer]:
+        - generic [ref=e772]:
+          - generic [ref=e773]: "035"
+          - generic: SOLD OUT
+        - generic [ref=e774]:
+          - heading "035" [level=3] [ref=e775]
+          - generic [ref=e776]: $130
+          - generic [ref=e777]:
+            - generic [ref=e778]:
+              - generic [ref=e780]: Navy Blue
+              - generic [ref=e782]: —
+            - generic [ref=e783]:
+              - generic [ref=e785]: Turqoise
+              - generic [ref=e787]: —
+          - generic [ref=e788]:
+            - generic [ref=e789]: Sold Out
+            - generic [ref=e790]:
+              - button "Edit" [ref=e791]:
+                - img [ref=e792]
+              - button "Delete" [ref=e795]:
+                - img [ref=e796]
+      - generic [ref=e798] [cursor=pointer]:
+        - generic [ref=e799]:
+          - generic [ref=e800]: "034"
+          - generic: SOLD OUT
+        - generic [ref=e801]:
+          - heading "034" [level=3] [ref=e802]
+          - generic [ref=e803]: $90
+          - generic [ref=e805]:
+            - generic [ref=e807]: Navy Blue
+            - generic [ref=e809]: —
+          - generic [ref=e810]:
+            - generic [ref=e811]: Sold Out
+            - generic [ref=e812]:
+              - button "Edit" [ref=e813]:
+                - img [ref=e814]
+              - button "Delete" [ref=e817]:
+                - img [ref=e818]
+      - generic [ref=e820] [cursor=pointer]:
+        - generic [ref=e821]:
+          - generic [ref=e822]: "033"
+          - generic: SOLD OUT
+        - generic [ref=e823]:
+          - heading "033" [level=3] [ref=e824]
+          - generic [ref=e825]: $165
+          - generic [ref=e826]:
+            - generic [ref=e827]:
+              - generic [ref=e829]: Black
+              - generic [ref=e831]: —
+            - generic [ref=e832]:
+              - generic [ref=e834]: Navy Blue
+              - generic [ref=e836]: —
+          - generic [ref=e837]:
+            - generic [ref=e838]: Sold Out
+            - generic [ref=e839]:
+              - button "Edit" [ref=e840]:
+                - img [ref=e841]
+              - button "Delete" [ref=e844]:
+                - img [ref=e845]
+      - generic [ref=e847] [cursor=pointer]:
+        - generic [ref=e848]:
+          - generic [ref=e849]: "032"
+          - generic: SOLD OUT
+        - generic [ref=e850]:
+          - heading "032" [level=3] [ref=e851]
+          - generic [ref=e852]: $145
+          - generic [ref=e853]:
+            - generic [ref=e854]:
+              - generic [ref=e856]: Black
+              - generic [ref=e858]: —
+            - generic [ref=e859]:
+              - generic [ref=e861]: Royal Blue
+              - generic [ref=e863]: —
+            - generic [ref=e864]:
+              - generic [ref=e866]: Green
+              - generic [ref=e868]: —
+            - generic [ref=e869]:
+              - generic [ref=e871]: Silver
+              - generic [ref=e873]: —
+          - generic [ref=e874]:
+            - generic [ref=e875]: Sold Out
+            - generic [ref=e876]:
+              - button "Edit" [ref=e877]:
+                - img [ref=e878]
+              - button "Delete" [ref=e881]:
+                - img [ref=e882]
+      - generic [ref=e884] [cursor=pointer]:
+        - generic [ref=e885]:
+          - generic [ref=e886]: "031"
+          - generic: SOLD OUT
+        - generic [ref=e887]:
+          - heading "031" [level=3] [ref=e888]
+          - generic [ref=e889]: $95
+          - generic [ref=e890]:
+            - generic [ref=e891]:
+              - generic [ref=e893]: Navy Blue
+              - generic [ref=e895]: —
+            - generic [ref=e896]:
+              - generic [ref=e898]: Burgundy
+              - generic [ref=e900]: —
+          - generic [ref=e901]:
+            - generic [ref=e902]: Sold Out
+            - generic [ref=e903]:
+              - button "Edit" [ref=e904]:
+                - img [ref=e905]
+              - button "Delete" [ref=e908]:
+                - img [ref=e909]
+      - generic [ref=e911] [cursor=pointer]:
+        - generic [ref=e912]:
+          - generic [ref=e913]: "030"
+          - generic: SOLD OUT
+        - generic [ref=e914]:
+          - heading "030" [level=3] [ref=e915]
+          - generic [ref=e916]: $100
+          - generic [ref=e917]:
+            - generic [ref=e918]:
+              - generic [ref=e920]: Black
+              - generic [ref=e922]: —
+            - generic [ref=e923]:
+              - generic [ref=e925]: Navy Blue
+              - generic [ref=e927]: —
+            - generic [ref=e928]:
+              - generic [ref=e930]: Burgundy
+              - generic [ref=e932]: —
+          - generic [ref=e933]:
+            - generic [ref=e934]: Sold Out
+            - generic [ref=e935]:
+              - button "Edit" [ref=e936]:
+                - img [ref=e937]
+              - button "Delete" [ref=e940]:
+                - img [ref=e941]
+      - generic [ref=e943] [cursor=pointer]:
+        - generic [ref=e944]:
+          - generic [ref=e945]: "029"
+          - generic: SOLD OUT
+        - generic [ref=e946]:
+          - heading "029" [level=3] [ref=e947]
+          - generic [ref=e948]: $135
+          - generic [ref=e949]:
+            - generic [ref=e950]:
+              - generic [ref=e952]: Royal Blue
+              - generic [ref=e954]: —
+            - generic [ref=e955]:
+              - generic [ref=e957]: Red
+              - generic [ref=e959]: —
+            - generic [ref=e960]:
+              - generic [ref=e962]: Black
+              - generic [ref=e964]: —
+            - generic [ref=e965]:
+              - generic [ref=e967]: Turqoise
+              - generic [ref=e969]: —
+            - generic [ref=e970]:
+              - generic [ref=e972]: White
+              - generic [ref=e974]: —
+            - generic [ref=e975]:
+              - generic [ref=e977]: Beige
+              - generic [ref=e979]: —
+          - generic [ref=e980]:
+            - generic [ref=e981]: Sold Out
+            - generic [ref=e982]:
+              - button "Edit" [ref=e983]:
+                - img [ref=e984]
+              - button "Delete" [ref=e987]:
+                - img [ref=e988]
+      - generic [ref=e990] [cursor=pointer]:
+        - generic [ref=e991]:
+          - generic [ref=e992]: "028"
+          - generic: SOLD OUT
+        - generic [ref=e993]:
+          - heading "028" [level=3] [ref=e994]
+          - generic [ref=e995]: $105
+          - generic [ref=e996]:
+            - generic [ref=e997]:
+              - generic [ref=e999]: Royal Blue
+              - generic [ref=e1001]: —
+            - generic [ref=e1002]:
+              - generic [ref=e1004]: Red
+              - generic [ref=e1006]: —
+            - generic [ref=e1007]:
+              - generic [ref=e1009]: Silver
+              - generic [ref=e1011]: —
+          - generic [ref=e1012]:
+            - generic [ref=e1013]: Sold Out
+            - generic [ref=e1014]:
+              - button "Edit" [ref=e1015]:
+                - img [ref=e1016]
+              - button "Delete" [ref=e1019]:
+                - img [ref=e1020]
+      - generic [ref=e1022] [cursor=pointer]:
+        - generic [ref=e1023]:
+          - generic [ref=e1024]: "027"
+          - generic: SOLD OUT
+        - generic [ref=e1025]:
+          - heading "027" [level=3] [ref=e1026]
+          - generic [ref=e1027]: $80
+          - generic [ref=e1028]:
+            - generic [ref=e1029]:
+              - generic [ref=e1031]: Royal Blue
+              - generic [ref=e1033]: —
+            - generic [ref=e1034]:
+              - generic [ref=e1036]: Red
+              - generic [ref=e1038]: —
+            - generic [ref=e1039]:
+              - generic [ref=e1041]: Green
+              - generic [ref=e1043]: —
+          - generic [ref=e1044]:
+            - generic [ref=e1045]: Sold Out
+            - generic [ref=e1046]:
+              - button "Edit" [ref=e1047]:
+                - img [ref=e1048]
+              - button "Delete" [ref=e1051]:
+                - img [ref=e1052]
+      - generic [ref=e1054] [cursor=pointer]:
+        - generic [ref=e1055]:
+          - generic [ref=e1056]: "026"
+          - generic: SOLD OUT
+        - generic [ref=e1057]:
+          - heading "026" [level=3] [ref=e1058]
+          - generic [ref=e1059]: $85
+          - generic [ref=e1061]:
+            - generic [ref=e1063]: Silver
+            - generic [ref=e1065]: —
+          - generic [ref=e1066]:
+            - generic [ref=e1067]: Sold Out
+            - generic [ref=e1068]:
+              - button "Edit" [ref=e1069]:
+                - img [ref=e1070]
+              - button "Delete" [ref=e1073]:
+                - img [ref=e1074]
+      - generic [ref=e1076] [cursor=pointer]:
+        - generic [ref=e1077]:
+          - generic [ref=e1078]: "025"
+          - generic: SOLD OUT
+        - generic [ref=e1079]:
+          - heading "025" [level=3] [ref=e1080]
+          - generic [ref=e1081]: $100
+          - generic [ref=e1082]:
+            - generic [ref=e1083]:
+              - generic [ref=e1085]: Pink
+              - generic [ref=e1087]: —
+            - generic [ref=e1088]:
+              - generic [ref=e1090]: Navy Blue
+              - generic [ref=e1092]: —
+          - generic [ref=e1093]:
+            - generic [ref=e1094]: Sold Out
+            - generic [ref=e1095]:
+              - button "Edit" [ref=e1096]:
+                - img [ref=e1097]
+              - button "Delete" [ref=e1100]:
+                - img [ref=e1101]
+      - generic [ref=e1103] [cursor=pointer]:
+        - generic [ref=e1104]:
+          - generic [ref=e1105]: "024"
+          - generic: SOLD OUT
+        - generic [ref=e1106]:
+          - heading "024" [level=3] [ref=e1107]
+          - generic [ref=e1108]: $70
+          - generic [ref=e1109]:
+            - generic [ref=e1110]:
+              - generic [ref=e1112]: Black
+              - generic [ref=e1114]: —
+            - generic [ref=e1115]:
+              - generic [ref=e1117]: Royal Blue
+              - generic [ref=e1119]: —
+            - generic [ref=e1120]:
+              - generic [ref=e1122]: Pink
+              - generic [ref=e1124]: —
+          - generic [ref=e1125]:
+            - generic [ref=e1126]: Sold Out
+            - generic [ref=e1127]:
+              - button "Edit" [ref=e1128]:
+                - img [ref=e1129]
+              - button "Delete" [ref=e1132]:
+                - img [ref=e1133]
+      - generic [ref=e1135] [cursor=pointer]:
+        - generic [ref=e1136]:
+          - generic [ref=e1137]: "023"
+          - generic: SOLD OUT
+        - generic [ref=e1138]:
+          - heading "023" [level=3] [ref=e1139]
+          - generic [ref=e1140]: $100
+          - generic [ref=e1142]:
+            - generic [ref=e1144]: Pink
+            - generic [ref=e1146]: —
+          - generic [ref=e1147]:
+            - generic [ref=e1148]: Sold Out
+            - generic [ref=e1149]:
+              - button "Edit" [ref=e1150]:
+                - img [ref=e1151]
+              - button "Delete" [ref=e1154]:
+                - img [ref=e1155]
+      - generic [ref=e1157] [cursor=pointer]:
+        - generic [ref=e1158]:
+          - generic [ref=e1159]: "022"
+          - generic: SOLD OUT
+        - generic [ref=e1160]:
+          - heading "022" [level=3] [ref=e1161]
+          - generic [ref=e1162]: $100
+          - generic [ref=e1164]:
+            - generic [ref=e1166]: Purple
+            - generic [ref=e1168]: —
+          - generic [ref=e1169]:
+            - generic [ref=e1170]: Sold Out
+            - generic [ref=e1171]:
+              - button "Edit" [ref=e1172]:
+                - img [ref=e1173]
+              - button "Delete" [ref=e1176]:
+                - img [ref=e1177]
+      - generic [ref=e1179] [cursor=pointer]:
+        - generic [ref=e1180]:
+          - generic [ref=e1181]: "020"
+          - generic: SOLD OUT
+        - generic [ref=e1182]:
+          - heading "020" [level=3] [ref=e1183]
+          - generic [ref=e1184]: $140
+          - generic [ref=e1185]:
+            - generic [ref=e1186]:
+              - generic [ref=e1188]: Light Pink
+              - generic [ref=e1190]: —
+            - generic [ref=e1191]:
+              - generic [ref=e1193]: Navy Blue
+              - generic [ref=e1195]: —
+          - generic [ref=e1196]:
+            - generic [ref=e1197]: Sold Out
+            - generic [ref=e1198]:
+              - button "Edit" [ref=e1199]:
+                - img [ref=e1200]
+              - button "Delete" [ref=e1203]:
+                - img [ref=e1204]
+      - generic [ref=e1206] [cursor=pointer]:
+        - generic [ref=e1207]:
+          - generic [ref=e1208]: "019"
+          - generic: SOLD OUT
+        - generic [ref=e1209]:
+          - heading "019" [level=3] [ref=e1210]
+          - generic [ref=e1211]: $90
+          - generic [ref=e1213]:
+            - generic [ref=e1215]: Light Pink
+            - generic [ref=e1217]: —
+          - generic [ref=e1218]:
+            - generic [ref=e1219]: Sold Out
+            - generic [ref=e1220]:
+              - button "Edit" [ref=e1221]:
+                - img [ref=e1222]
+              - button "Delete" [ref=e1225]:
+                - img [ref=e1226]
+      - generic [ref=e1228] [cursor=pointer]:
+        - generic [ref=e1229]:
+          - generic [ref=e1230]: "018"
+          - generic: SOLD OUT
+        - generic [ref=e1231]:
+          - heading "018" [level=3] [ref=e1232]
+          - generic [ref=e1233]: $90
+          - generic [ref=e1234]:
+            - generic [ref=e1235]:
+              - generic [ref=e1237]: Olive
+              - generic [ref=e1239]: —
+            - generic [ref=e1240]:
+              - generic [ref=e1242]: Light Pink
+              - generic [ref=e1244]: —
+            - generic [ref=e1245]:
+              - generic [ref=e1247]: Burgundy
+              - generic [ref=e1249]: —
+          - generic [ref=e1250]:
+            - generic [ref=e1251]: Sold Out
+            - generic [ref=e1252]:
+              - button "Edit" [ref=e1253]:
+                - img [ref=e1254]
+              - button "Delete" [ref=e1257]:
+                - img [ref=e1258]
+      - generic [ref=e1260] [cursor=pointer]:
+        - generic [ref=e1261]:
+          - generic [ref=e1262]: "017"
+          - generic: SOLD OUT
+        - generic [ref=e1263]:
+          - heading "017" [level=3] [ref=e1264]
+          - generic [ref=e1265]: $80
+          - generic [ref=e1266]:
+            - generic [ref=e1267]:
+              - generic [ref=e1269]: Beige
+              - generic [ref=e1271]: —
+            - generic [ref=e1272]:
+              - generic [ref=e1274]: Black
+              - generic [ref=e1276]: —
+          - generic [ref=e1277]:
+            - generic [ref=e1278]: Sold Out
+            - generic [ref=e1279]:
+              - button "Edit" [ref=e1280]:
+                - img [ref=e1281]
+              - button "Delete" [ref=e1284]:
+                - img [ref=e1285]
+      - generic [ref=e1287] [cursor=pointer]:
+        - generic [ref=e1288]:
+          - generic [ref=e1289]: "016"
+          - generic: SOLD OUT
+        - generic [ref=e1290]:
+          - heading "016" [level=3] [ref=e1291]
+          - generic [ref=e1292]: $80
+          - generic [ref=e1293]:
+            - generic [ref=e1294]:
+              - generic [ref=e1296]: Beige
+              - generic [ref=e1298]: —
+            - generic [ref=e1299]:
+              - generic [ref=e1301]: Black
+              - generic [ref=e1303]: —
+            - generic [ref=e1304]:
+              - generic [ref=e1306]: Olive
+              - generic [ref=e1308]: —
+          - generic [ref=e1309]:
+            - generic [ref=e1310]: Sold Out
+            - generic [ref=e1311]:
+              - button "Edit" [ref=e1312]:
+                - img [ref=e1313]
+              - button "Delete" [ref=e1316]:
+                - img [ref=e1317]
+      - generic [ref=e1319] [cursor=pointer]:
+        - generic [ref=e1320]:
+          - generic [ref=e1321]: "015"
+          - generic: SOLD OUT
+        - generic [ref=e1322]:
+          - heading "015" [level=3] [ref=e1323]
+          - generic [ref=e1324]: $100
+          - generic [ref=e1325]:
+            - generic [ref=e1326]:
+              - generic [ref=e1328]: Black
+              - generic [ref=e1330]: —
+            - generic [ref=e1331]:
+              - generic [ref=e1333]: Pink
+              - generic [ref=e1335]: —
+            - generic [ref=e1336]:
+              - generic [ref=e1338]: Green
+              - generic [ref=e1340]: —
+            - generic [ref=e1341]:
+              - generic [ref=e1343]: Olive
+              - generic [ref=e1345]: —
+            - generic [ref=e1346]:
+              - generic [ref=e1348]: Royal Blue
+              - generic [ref=e1350]: —
+            - generic [ref=e1351]:
+              - generic [ref=e1353]: Navy Blue
+              - generic [ref=e1355]: —
+          - generic [ref=e1356]:
+            - generic [ref=e1357]: Sold Out
+            - generic [ref=e1358]:
+              - button "Edit" [ref=e1359]:
+                - img [ref=e1360]
+              - button "Delete" [ref=e1363]:
+                - img [ref=e1364]
+      - generic [ref=e1366] [cursor=pointer]:
+        - generic [ref=e1367]:
+          - generic [ref=e1368]: "014"
+          - generic: SOLD OUT
+        - generic [ref=e1369]:
+          - heading "014" [level=3] [ref=e1370]
+          - generic [ref=e1371]: $70
+          - generic [ref=e1372]:
+            - generic [ref=e1373]:
+              - generic [ref=e1375]: Light Pink
+              - generic [ref=e1377]: —
+            - generic [ref=e1378]:
+              - generic [ref=e1380]: Navy Blue
+              - generic [ref=e1382]: —
+          - generic [ref=e1383]:
+            - generic [ref=e1384]: Sold Out
+            - generic [ref=e1385]:
+              - button "Edit" [ref=e1386]:
+                - img [ref=e1387]
+              - button "Delete" [ref=e1390]:
+                - img [ref=e1391]
+      - generic [ref=e1393] [cursor=pointer]:
+        - generic [ref=e1394]:
+          - generic [ref=e1395]: "013"
+          - generic: SOLD OUT
+        - generic [ref=e1396]:
+          - heading "013" [level=3] [ref=e1397]
+          - generic [ref=e1398]: $150
+          - generic [ref=e1399]:
+            - generic [ref=e1400]:
+              - generic [ref=e1402]: Green
+              - generic [ref=e1404]: —
+            - generic [ref=e1405]:
+              - generic [ref=e1407]: Pink
+              - generic [ref=e1409]: —
+            - generic [ref=e1410]:
+              - generic [ref=e1412]: Navy Blue
+              - generic [ref=e1414]: —
+          - generic [ref=e1415]:
+            - generic [ref=e1416]: Sold Out
+            - generic [ref=e1417]:
+              - button "Edit" [ref=e1418]:
+                - img [ref=e1419]
+              - button "Delete" [ref=e1422]:
+                - img [ref=e1423]
+      - generic [ref=e1425] [cursor=pointer]:
+        - generic [ref=e1426]:
+          - generic [ref=e1427]: "012"
+          - generic: SOLD OUT
+        - generic [ref=e1428]:
+          - heading "012" [level=3] [ref=e1429]
+          - generic [ref=e1430]: $90
+          - generic [ref=e1431]:
+            - generic [ref=e1432]:
+              - generic [ref=e1434]: Purple
+              - generic [ref=e1436]: —
+            - generic [ref=e1437]:
+              - generic [ref=e1439]: White
+              - generic [ref=e1441]: —
+            - generic [ref=e1442]:
+              - generic [ref=e1444]: Green
+              - generic [ref=e1446]: —
+            - generic [ref=e1447]:
+              - generic [ref=e1449]: Light Pink
+              - generic [ref=e1451]: —
+          - generic [ref=e1452]:
+            - generic [ref=e1453]: Sold Out
+            - generic [ref=e1454]:
+              - button "Edit" [ref=e1455]:
+                - img [ref=e1456]
+              - button "Delete" [ref=e1459]:
+                - img [ref=e1460]
+      - generic [ref=e1462] [cursor=pointer]:
+        - generic [ref=e1463]:
+          - generic [ref=e1464]: "011"
+          - generic: SOLD OUT
+        - generic [ref=e1465]:
+          - heading "011" [level=3] [ref=e1466]
+          - generic [ref=e1467]: $145
+          - generic [ref=e1468]:
+            - generic [ref=e1469]:
+              - generic [ref=e1471]: Royal Blue
+              - generic [ref=e1473]: —
+            - generic [ref=e1474]:
+              - generic [ref=e1476]: Beige
+              - generic [ref=e1478]: —
+            - generic [ref=e1479]:
+              - generic [ref=e1481]: Black
+              - generic [ref=e1483]: —
+            - generic [ref=e1484]:
+              - generic [ref=e1486]: Light Pink
+              - generic [ref=e1488]: —
+            - generic [ref=e1489]:
+              - generic [ref=e1491]: Red
+              - generic [ref=e1493]: —
+          - generic [ref=e1494]:
+            - generic [ref=e1495]: Sold Out
+            - generic [ref=e1496]:
+              - button "Edit" [ref=e1497]:
+                - img [ref=e1498]
+              - button "Delete" [ref=e1501]:
+                - img [ref=e1502]
+      - generic [ref=e1504] [cursor=pointer]:
+        - generic [ref=e1505]:
+          - generic [ref=e1506]: "010"
+          - generic: SOLD OUT
+        - generic [ref=e1507]:
+          - heading "010" [level=3] [ref=e1508]
+          - generic [ref=e1509]: $100
+          - generic [ref=e1511]:
+            - generic [ref=e1513]: Black
+            - generic [ref=e1515]: —
+          - generic [ref=e1516]:
+            - generic [ref=e1517]: Sold Out
+            - generic [ref=e1518]:
+              - button "Edit" [ref=e1519]:
+                - img [ref=e1520]
+              - button "Delete" [ref=e1523]:
+                - img [ref=e1524]
+      - generic [ref=e1526] [cursor=pointer]:
+        - generic [ref=e1527]:
+          - generic [ref=e1528]: "009"
+          - generic: SOLD OUT
+        - generic [ref=e1529]:
+          - heading "009" [level=3] [ref=e1530]
+          - generic [ref=e1531]: $90
+          - generic [ref=e1532]:
+            - generic [ref=e1533]:
+              - generic [ref=e1535]: Black
+              - generic [ref=e1537]: —
+            - generic [ref=e1538]:
+              - generic [ref=e1540]: Red
+              - generic [ref=e1542]: —
+          - generic [ref=e1543]:
+            - generic [ref=e1544]: Sold Out
+            - generic [ref=e1545]:
+              - button "Edit" [ref=e1546]:
+                - img [ref=e1547]
+              - button "Delete" [ref=e1550]:
+                - img [ref=e1551]
+      - generic [ref=e1553] [cursor=pointer]:
+        - generic [ref=e1554]:
+          - generic [ref=e1555]: "008"
+          - generic: SOLD OUT
+        - generic [ref=e1556]:
+          - heading "008" [level=3] [ref=e1557]
+          - generic [ref=e1558]: $70
+          - generic [ref=e1559]:
+            - generic [ref=e1560]:
+              - generic [ref=e1562]: Black
+              - generic [ref=e1564]: —
+            - generic [ref=e1565]:
+              - generic [ref=e1567]: Pink
+              - generic [ref=e1569]: —
+            - generic [ref=e1570]:
+              - generic [ref=e1572]: Burgundy
+              - generic [ref=e1574]: —
+          - generic [ref=e1575]:
+            - generic [ref=e1576]: Sold Out
+            - generic [ref=e1577]:
+              - button "Edit" [ref=e1578]:
+                - img [ref=e1579]
+              - button "Delete" [ref=e1582]:
+                - img [ref=e1583]
+      - generic [ref=e1585] [cursor=pointer]:
+        - generic [ref=e1586]:
+          - generic [ref=e1587]: 007-1
+          - generic: SOLD OUT
+        - generic [ref=e1588]:
+          - heading "007-1" [level=3] [ref=e1589]
+          - generic [ref=e1590]: $135
+          - generic [ref=e1592]:
+            - generic [ref=e1594]: Pink
+            - generic [ref=e1596]: —
+          - generic [ref=e1597]:
+            - generic [ref=e1598]: Sold Out
+            - generic [ref=e1599]:
+              - button "Edit" [ref=e1600]:
+                - img [ref=e1601]
+              - button "Delete" [ref=e1604]:
+                - img [ref=e1605]
+      - generic [ref=e1607] [cursor=pointer]:
+        - generic [ref=e1608]:
+          - generic [ref=e1609]: "007"
+          - generic: SOLD OUT
+        - generic [ref=e1610]:
+          - heading "007" [level=3] [ref=e1611]
+          - generic [ref=e1612]: $70
+          - generic [ref=e1614]:
+            - generic [ref=e1616]: Navy Blue
+            - generic [ref=e1618]: —
+          - generic [ref=e1619]:
+            - generic [ref=e1620]: Sold Out
+            - generic [ref=e1621]:
+              - button "Edit" [ref=e1622]:
+                - img [ref=e1623]
+              - button "Delete" [ref=e1626]:
+                - img [ref=e1627]
+      - generic [ref=e1629] [cursor=pointer]:
+        - generic [ref=e1630]:
+          - generic [ref=e1631]: "006"
+          - generic: SOLD OUT
+        - generic [ref=e1632]:
+          - heading "006" [level=3] [ref=e1633]
+          - generic [ref=e1634]: $120
+          - generic [ref=e1635]:
+            - generic [ref=e1636]:
+              - generic [ref=e1638]: Royal Blue
+              - generic [ref=e1640]: —
+            - generic [ref=e1641]:
+              - generic [ref=e1643]: Navy Blue
+              - generic [ref=e1645]: —
+          - generic [ref=e1646]:
+            - generic [ref=e1647]: Sold Out
+            - generic [ref=e1648]:
+              - button "Edit" [ref=e1649]:
+                - img [ref=e1650]
+              - button "Delete" [ref=e1653]:
+                - img [ref=e1654]
+      - generic [ref=e1656] [cursor=pointer]:
+        - generic [ref=e1657]:
+          - generic [ref=e1658]: "005"
+          - generic: SOLD OUT
+        - generic [ref=e1659]:
+          - heading "005" [level=3] [ref=e1660]
+          - generic [ref=e1661]: $110
+          - generic [ref=e1662]:
+            - generic [ref=e1663]:
+              - generic [ref=e1665]: Pink
+              - generic [ref=e1667]: —
+            - generic [ref=e1668]:
+              - generic [ref=e1670]: White
+              - generic [ref=e1672]: —
+          - generic [ref=e1673]:
+            - generic [ref=e1674]: Sold Out
+            - generic [ref=e1675]:
+              - button "Edit" [ref=e1676]:
+                - img [ref=e1677]
+              - button "Delete" [ref=e1680]:
+                - img [ref=e1681]
+      - generic [ref=e1683] [cursor=pointer]:
+        - generic [ref=e1684]:
+          - generic [ref=e1685]: "004"
+          - generic: SOLD OUT
+        - generic [ref=e1686]:
+          - heading "004" [level=3] [ref=e1687]
+          - generic [ref=e1688]: $140
+          - generic [ref=e1689]:
+            - generic [ref=e1690]:
+              - generic [ref=e1692]: Royal Blue
+              - generic [ref=e1694]: —
+            - generic [ref=e1695]:
+              - generic [ref=e1697]: Green
+              - generic [ref=e1699]: —
+            - generic [ref=e1700]:
+              - generic [ref=e1702]: Turqoise
+              - generic [ref=e1704]: —
+          - generic [ref=e1705]:
+            - generic [ref=e1706]: Sold Out
+            - generic [ref=e1707]:
+              - button "Edit" [ref=e1708]:
+                - img [ref=e1709]
+              - button "Delete" [ref=e1712]:
+                - img [ref=e1713]
+      - generic [ref=e1715] [cursor=pointer]:
+        - generic [ref=e1716]:
+          - generic [ref=e1717]: "003"
+          - generic: SOLD OUT
+        - generic [ref=e1718]:
+          - heading "003" [level=3] [ref=e1719]
+          - generic [ref=e1720]: $130
+          - generic [ref=e1721]:
+            - generic [ref=e1722]:
+              - generic [ref=e1724]: Purple
+              - generic [ref=e1726]: —
+            - generic [ref=e1727]:
+              - generic [ref=e1729]: Turqoise
+              - generic [ref=e1731]: —
+            - generic [ref=e1732]:
+              - generic [ref=e1734]: Royal Blue
+              - generic [ref=e1736]: —
+          - generic [ref=e1737]:
+            - generic [ref=e1738]: Sold Out
+            - generic [ref=e1739]:
+              - button "Edit" [ref=e1740]:
+                - img [ref=e1741]
+              - button "Delete" [ref=e1744]:
+                - img [ref=e1745]
+      - generic [ref=e1747] [cursor=pointer]:
+        - generic [ref=e1748]:
+          - generic [ref=e1749]: "002"
+          - generic: SOLD OUT
+        - generic [ref=e1750]:
+          - heading "002" [level=3] [ref=e1751]
+          - generic [ref=e1752]: $140
+          - generic [ref=e1753]:
+            - generic [ref=e1754]:
+              - generic [ref=e1756]: Black
+              - generic [ref=e1758]: —
+            - generic [ref=e1759]:
+              - generic [ref=e1761]: Beige
+              - generic [ref=e1763]: —
+            - generic [ref=e1764]:
+              - generic [ref=e1766]: Light Pink
+              - generic [ref=e1768]: —
+            - generic [ref=e1769]:
+              - generic [ref=e1771]: Navy Blue
+              - generic [ref=e1773]: —
+          - generic [ref=e1774]:
+            - generic [ref=e1775]: Sold Out
+            - generic [ref=e1776]:
+              - button "Edit" [ref=e1777]:
+                - img [ref=e1778]
+              - button "Delete" [ref=e1781]:
+                - img [ref=e1782]
+      - generic [ref=e1784] [cursor=pointer]:
+        - generic [ref=e1786]: "001"
+        - generic [ref=e1787]:
+          - heading "001" [level=3] [ref=e1788]
+          - generic [ref=e1789]: $105
+          - generic [ref=e1790]:
+            - generic [ref=e1791]:
+              - generic [ref=e1793]: Beige
+              - generic [ref=e1795]: —
+            - generic [ref=e1796]:
+              - generic [ref=e1798]: Emerald
+              - generic [ref=e1800]: —
+            - generic [ref=e1801]:
+              - generic [ref=e1803]: Black
+              - generic [ref=e1805]: —
+            - generic [ref=e1806]:
+              - generic [ref=e1808]: Navy Blue
+              - generic [ref=e1810]: "40"
+          - generic [ref=e1811]:
+            - generic [ref=e1812]: 1 piece
+            - generic [ref=e1813]:
+              - button "Edit" [ref=e1814]:
+                - img [ref=e1815]
+              - button "Delete" [ref=e1818]:
+                - img [ref=e1819]
+  - button "Add dress" [ref=e1821] [cursor=pointer]:
+    - img [ref=e1822]
+  - navigation [ref=e1824]:
+    - button "Inventory" [ref=e1825] [cursor=pointer]:
+      - img [ref=e1826]
+      - generic [ref=e1831]: Inventory
+    - button "Scan" [ref=e1832] [cursor=pointer]:
+      - img [ref=e1833]
+      - generic [ref=e1836]: Scan
+    - button "Select" [ref=e1837] [cursor=pointer]:
+      - img [ref=e1838]
+      - generic [ref=e1841]: Select
+    - button "More" [active] [ref=e1842] [cursor=pointer]:
+      - img [ref=e1843]
+      - generic [ref=e1847]: More
+  - generic [ref=e1851]:
+    - paragraph [ref=e1852]: Actions
+    - button "Select Items" [ref=e1853] [cursor=pointer]
+    - button "View History" [ref=e1854] [cursor=pointer]
+    - button "Cancel" [ref=e1855] [cursor=pointer]

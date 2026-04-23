@@ -1,0 +1,8 @@
+- generic [ref=e3]:
+  - generic [ref=e4]: 👗
+  - heading "BrideToBe" [level=1] [ref=e5]
+  - paragraph [ref=e6]: Fashion Inventory
+  - generic [ref=e7]:
+    - textbox "Enter password" [ref=e8]
+    - paragraph [ref=e9]
+    - button "Unlock" [ref=e10] [cursor=pointer]
