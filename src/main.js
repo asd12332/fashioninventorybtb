@@ -1,4 +1,7 @@
-import { initApp } from './ui.js';
+import { ensureAuthenticated } from './auth.js'
+import { initApp } from './ui.js'
 
-// Bootstrap the application
-document.addEventListener('DOMContentLoaded', initApp);
+document.addEventListener('DOMContentLoaded', async () => {
+  await ensureAuthenticated()
+  initApp()
+})

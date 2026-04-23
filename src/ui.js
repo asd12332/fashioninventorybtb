@@ -44,17 +44,19 @@ function queueChange(dress_id, color, size, quantity) {
   savePending();
 }
 function updateSyncBadge() {
-  const label = document.querySelector('#btnSync span');
-  if (!label) return;
-  label.textContent = pendingSync.length > 0
-    ? `Sync to Shopify (${pendingSync.length})`
-    : 'Sync to Shopify';
+  const badge = document.getElementById('syncBadge');
+  if (!badge) return;
+  if (pendingSync.length > 0) {
+    badge.textContent = pendingSync.length;
+    badge.style.display = '';
+  } else {
+    badge.style.display = 'none';
+  }
 }
 
 let filterColor = '';       // '' = all
 let filterPrice = '';
 let sortOrder = 'desc';     // 'asc' | 'desc' by ID
-let gridCols = 3;           // cards per row
 
 // ─── STEPPER HELPERS ────────────────────────────────────────
 function renderSizeStepper(size, qty, extraAttrs = '') {
@@ -137,128 +139,100 @@ function showSetupScreen() {
 function renderShell() {
   const app = document.getElementById('app');
   app.innerHTML = `
-    <header class="app-header">
-      <div class="header-left">
-        <h1 class="logo">
+    <div class="top-strip">
+      <div class="top-row">
+        <div class="logo">
           <span class="logo-icon">👗</span>
-          <span>Dress Inventory</span>
-        </h1>
-      </div>
-      <div class="header-center">
+          <span>BrideToBe</span>
+        </div>
         <div class="search-box">
           <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
           </svg>
-          <input type="text" id="searchInput" placeholder="Search by ID or name..." autocomplete="off" />
+          <input type="text" id="searchInput" placeholder="Search..." autocomplete="off" />
         </div>
       </div>
-      <div class="header-right">
-        <button id="btnScan" class="btn btn-ghost" title="Scan dress card with AI">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
-            <path d="M4 7V5a1 1 0 0 1 1-1h2M17 4h2a1 1 0 0 1 1 1v2M20 17v2a1 1 0 0 1-1 1h-2M7 20H5a1 1 0 0 1-1-1v-2"/>
-            <circle cx="12" cy="12" r="3"/>
-          </svg>
-          <span>Scan</span>
-        </button>
-        <button id="btnSelect" class="btn btn-ghost" title="Select a dress">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
-            <polyline points="20 6 9 17 4 12"/>
-          </svg>
-          <span>Select</span>
-        </button>
-        <button id="btnReset" class="btn btn-ghost" title="Reset selected dress quantities to 0" style="display:none">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
-            <path d="M3 12a9 9 0 1 0 9-9"/><polyline points="3 4 3 12 11 12"/>
-          </svg>
-          <span>Reset</span>
-        </button>
-        <button id="btnDeleteSelected" class="btn btn-ghost" title="Delete selected dress" style="display:none">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
-            <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
-          </svg>
-          <span>Delete</span>
-        </button>
-        <input type="file" id="scanInput" accept="image/*" capture="environment" style="display:none" />
-        <button id="btnSync" class="btn btn-ghost">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
-            <path d="M4 12c0-4.418 3.582-8 8-8a8 8 0 0 1 6.32 3.09"/>
-            <path d="M20 12c0 4.418-3.582 8-8 8a8 8 0 0 1-6.32-3.09"/>
-            <polyline points="22 4 20 6.09 18 4"/>
-            <polyline points="2 20 4 17.91 6 20"/>
-          </svg>
-          <span>Sync to Shopify</span>
-        </button>
-        <button id="btnAdd" class="btn btn-primary">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="18" height="18">
-            <path d="M12 5v14M5 12h14"/>
-          </svg>
-          <span>Add Dress</span>
-        </button>
-      </div>
-    </header>
-
-    <div class="stats-bar" id="statsBar"></div>
-
-    <div class="filter-bar" id="filterBar">
-      <div class="filter-group">
-        <label for="filterColor">Color</label>
+      <div class="filter-pills">
         <select id="filterColor">
           <option value="">All Colors</option>
           ${FASHION_COLORS.map(c => `<option value="${c.name}">${c.name}</option>`).join('')}
         </select>
-      </div>
-      <div class="filter-group">
-        <label for="filterPrice">Price</label>
-        <input type="number" id="filterPrice" placeholder="e.g. 80" min="0" />
-      </div>
-      <div class="filter-group">
-        <label for="sortOrder">Sort</label>
+        <input type="number" id="filterPrice" placeholder="Price" min="0" />
         <select id="sortOrder">
-          <option value="desc">ID: Newest First</option>
-          <option value="asc">ID: Oldest First</option>
-          <option value="price_asc">Price: Low → High</option>
-          <option value="price_desc">Price: High → Low</option>
+          <option value="desc">ID: Newest</option>
+          <option value="asc">ID: Oldest</option>
+          <option value="price_asc">Price ↑</option>
+          <option value="price_desc">Price ↓</option>
         </select>
+        <button class="btn-reset-filters" id="btnResetFilters">Reset</button>
       </div>
-      <div class="filter-group">
-        <label for="gridCols">Per Row</label>
-        <select id="gridCols">
-          <option value="2">2</option>
-          <option value="3" selected>3</option>
-          <option value="4">4</option>
-          <option value="5">5</option>
-        </select>
-      </div>
-      <button class="btn btn-ghost btn-reset-filters" id="btnResetFilters">Reset</button>
+      <div class="stats-bar" id="statsBar"></div>
     </div>
 
     <main class="main-content">
       <div class="dress-grid" id="dressGrid"></div>
     </main>
 
-    <!-- Add/Edit Dress Modal -->
-    <div class="modal-overlay" id="modalOverlay">
-      <div class="modal" id="dressModal"></div>
+    <button class="fab" id="btnAdd" title="Add dress">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="24" height="24">
+        <path d="M12 5v14M5 12h14"/>
+      </svg>
+    </button>
+
+    <nav class="tab-bar">
+      <button class="tab-btn active" id="tabInventory">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+          <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+        </svg>
+        <span>Inventory</span>
+      </button>
+      <button class="tab-btn" id="tabScan">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M4 7V5a1 1 0 0 1 1-1h2M17 4h2a1 1 0 0 1 1 1v2M20 17v2a1 1 0 0 1-1 1h-2M7 20H5a1 1 0 0 1-1-1v-2"/>
+          <circle cx="12" cy="12" r="3"/>
+        </svg>
+        <span>Scan</span>
+      </button>
+      <button class="tab-btn" id="tabSync">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M4 12c0-4.418 3.582-8 8-8a8 8 0 0 1 6.32 3.09"/>
+          <path d="M20 12c0 4.418-3.582 8-8 8a8 8 0 0 1-6.32-3.09"/>
+          <polyline points="22 4 20 6.09 18 4"/><polyline points="2 20 4 17.91 6 20"/>
+        </svg>
+        <span>Sync</span>
+        <span class="tab-badge" id="syncBadge" style="display:none"></span>
+      </button>
+      <button class="tab-btn" id="tabMore">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="5" r="1.5" fill="currentColor"/>
+          <circle cx="12" cy="12" r="1.5" fill="currentColor"/>
+          <circle cx="12" cy="19" r="1.5" fill="currentColor"/>
+        </svg>
+        <span>More</span>
+        <span class="tab-badge" id="moreBadge" style="display:none"></span>
+      </button>
+    </nav>
+
+    <input type="file" id="scanInput" accept="image/*" capture="environment" style="display:none" />
+
+    <div class="sheet-overlay" id="modalOverlay">
+      <div class="sheet" id="dressModal"></div>
+    </div>
+    <div class="sheet-overlay" id="detailOverlay">
+      <div class="sheet" id="detailModal"></div>
     </div>
 
-    <!-- Detail View Modal -->
-    <div class="modal-overlay" id="detailOverlay">
-      <div class="modal modal-detail" id="detailModal"></div>
-    </div>
-
-    <!-- Toast -->
     <div class="toast-container" id="toastContainer"></div>
   `;
 
-  // Event listeners
   document.getElementById('btnAdd').addEventListener('click', () => openAddModal());
-  document.getElementById('btnSync').addEventListener('click', handleShopifySync);
-  document.getElementById('btnSelect').addEventListener('click', toggleSelectMode);
-  document.getElementById('btnReset').addEventListener('click', handleResetSelected);
-  document.getElementById('btnDeleteSelected').addEventListener('click', handleDeleteSelected);
-  document.getElementById('btnScan').addEventListener('click', () => document.getElementById('scanInput').click());
+  document.getElementById('tabSync').addEventListener('click', handleShopifySync);
+  document.getElementById('tabScan').addEventListener('click', () => document.getElementById('scanInput').click());
+  document.getElementById('tabMore').addEventListener('click', openMoreSheet);
   document.getElementById('scanInput').addEventListener('change', handleScanFile);
   updateSyncBadge();
+
   document.getElementById('searchInput').addEventListener('input', handleSearch);
   document.getElementById('modalOverlay').addEventListener('click', (e) => {
     if (e.target === e.currentTarget) closeModal();
@@ -267,17 +241,14 @@ function renderShell() {
     if (e.target === e.currentTarget) closeDetail();
   });
 
-  // Filter / sort listeners
   document.getElementById('filterColor').addEventListener('change', (e) => { filterColor = e.target.value; renderGrid(); });
   document.getElementById('filterPrice').addEventListener('input', (e) => { filterPrice = e.target.value; renderGrid(); });
   document.getElementById('sortOrder').addEventListener('change', (e) => { sortOrder = e.target.value; renderGrid(); });
-  document.getElementById('gridCols').addEventListener('change', (e) => { gridCols = parseInt(e.target.value); renderGrid(); });
   document.getElementById('btnResetFilters').addEventListener('click', () => {
-    filterColor = ''; filterPrice = ''; sortOrder = 'desc'; gridCols = 3;
+    filterColor = ''; filterPrice = ''; sortOrder = 'desc';
     document.getElementById('filterColor').value = '';
     document.getElementById('filterPrice').value = '';
     document.getElementById('sortOrder').value = 'desc';
-    document.getElementById('gridCols').value = '3';
     renderGrid();
   });
 }
@@ -299,10 +270,9 @@ async function handleShopifySync() {
     showToast('No changes to sync.', 'success');
     return;
   }
-  const btn = document.getElementById('btnSync');
-  const originalContent = btn.innerHTML;
-  btn.disabled = true;
-  btn.innerHTML = '<span class="spinner"></span> Syncing...';
+  const btn = document.getElementById('tabSync');
+  const originalContent = btn?.innerHTML;
+  if (btn) { btn.disabled = true; btn.innerHTML = `<span class="spinner small"></span><span>Syncing</span>`; }
   const changesToSync = [...pendingSync];
   try {
     const { succeeded, failed } = await syncPendingChanges(changesToSync);
@@ -322,8 +292,7 @@ async function handleShopifySync() {
   } catch (err) {
     showToast('Sync failed: ' + err.message, 'error');
   } finally {
-    btn.disabled = false;
-    btn.innerHTML = originalContent;
+    if (btn) { btn.disabled = false; btn.innerHTML = originalContent; }
     updateSyncBadge();
   }
 }
@@ -379,8 +348,6 @@ function showGridLoading() {
 
 function renderGrid() {
   const grid = document.getElementById('dressGrid');
-  grid.style.gridTemplateColumns = `repeat(${gridCols}, 1fr)`;
-
   // ── Filter ──
   let filtered = allDresses.filter((dress) => {
     // Color filter: keep dress if it has at least one matching color
@@ -439,7 +406,7 @@ function renderGrid() {
               return `<div class="card-color-row">
                 <span class="color-dot" style="background:${c.color_hex}"></span>
                 <span class="card-color-name">${c.color_name}</span>
-                <span class="card-color-sizes">${availableSizes.length > 0 ? availableSizes.join('  ') : '—'}</span>
+                <span class="card-color-sizes">${availableSizes.length > 0 ? availableSizes.map(s => `<span class="size-chip">${s}</span>`).join('') : '<span style="color:var(--text-3)">—</span>'}</span>
               </div>`;
             }).join('')}
             ${colorCount === 0 ? '<div class="card-color-row"><span class="meta-count">No colors</span></div>' : ''}
@@ -494,25 +461,56 @@ function renderGrid() {
 function toggleSelectMode() {
   selectMode = !selectMode;
   selectedDressIds = new Set();
-  const btn = document.getElementById('btnSelect');
-  btn.classList.toggle('btn-primary', selectMode);
-  btn.classList.toggle('btn-ghost', !selectMode);
-  btn.querySelector('span').textContent = selectMode ? 'Cancel' : 'Select';
   updateSelectionUI();
   renderGrid();
 }
 
 function updateSelectionUI() {
   const count = selectMode ? selectedDressIds.size : 0;
-  const hasSelection = count > 0;
-  const resetBtn = document.getElementById('btnReset');
-  const delBtn = document.getElementById('btnDeleteSelected');
-  resetBtn.style.display = hasSelection ? '' : 'none';
-  delBtn.style.display = hasSelection ? '' : 'none';
-  if (hasSelection) {
-    resetBtn.querySelector('span').textContent = `Reset (${count})`;
-    delBtn.querySelector('span').textContent = `Delete (${count})`;
+  const moreBadge = document.getElementById('moreBadge');
+  if (moreBadge) {
+    if (selectMode && count > 0) {
+      moreBadge.textContent = count;
+      moreBadge.style.display = '';
+    } else {
+      moreBadge.style.display = 'none';
+    }
   }
+}
+
+function openMoreSheet() {
+  const modal = document.getElementById('dressModal');
+  const overlay = document.getElementById('modalOverlay');
+  const count = selectedDressIds.size;
+
+  const cancelSelectBtn = selectMode
+    ? `<button class="action-sheet-btn action-sheet-btn-gold" id="btnSheetCancelSelect">Cancel Selection</button>`
+    : '';
+  const resetBtn = selectMode && count > 0
+    ? `<button class="action-sheet-btn action-sheet-btn-warning" id="btnSheetReset">Reset ${count} dress${count !== 1 ? 'es' : ''} to 0</button>`
+    : '';
+  const deleteBtn = selectMode && count > 0
+    ? `<button class="action-sheet-btn action-sheet-btn-danger" id="btnSheetDelete">Delete ${count} dress${count !== 1 ? 'es' : ''}</button>`
+    : '';
+  const selectBtn = !selectMode
+    ? `<button class="action-sheet-btn" id="btnSheetSelect">Select Items</button>`
+    : '';
+
+  modal.innerHTML = `
+    <div class="sheet-handle"></div>
+    <div class="action-sheet">
+      <p class="action-sheet-title">Actions</p>
+      ${selectBtn}${cancelSelectBtn}${resetBtn}${deleteBtn}
+      <button class="action-sheet-btn action-sheet-btn-cancel" id="btnSheetClose">Cancel</button>
+    </div>
+  `;
+
+  overlay.classList.add('active');
+  modal.querySelector('#btnSheetClose')?.addEventListener('click', closeModal);
+  modal.querySelector('#btnSheetSelect')?.addEventListener('click', () => { closeModal(); toggleSelectMode(); });
+  modal.querySelector('#btnSheetCancelSelect')?.addEventListener('click', () => { closeModal(); toggleSelectMode(); });
+  modal.querySelector('#btnSheetReset')?.addEventListener('click', () => { closeModal(); handleResetSelected(); });
+  modal.querySelector('#btnSheetDelete')?.addEventListener('click', () => { closeModal(); handleDeleteSelected(); });
 }
 
 async function handleResetSelected() {
@@ -605,6 +603,7 @@ function openScanActionModal(dress, color, size, currentQty) {
   const modal = document.getElementById('dressModal');
   const overlay = document.getElementById('modalOverlay');
   modal.innerHTML = `
+    <div class="sheet-handle"></div>
     <div class="confirm-dialog">
       <div class="confirm-icon">📸</div>
       <h2>Scanned: ${dress.id}</h2>
@@ -650,6 +649,7 @@ function openDetail(dressId) {
   );
 
   modal.innerHTML = `
+    <div class="sheet-handle"></div>
     <div class="detail-header">
       <div>
         <h2>Dress ${dress.id}</h2>
@@ -911,6 +911,7 @@ function renderDressForm(dress) {
   }
 
   modal.innerHTML = `
+    <div class="sheet-handle"></div>
     <div class="modal-header">
       <h2>${isEdit ? 'Edit Dress' : 'Add New Dress'}</h2>
       <button class="btn-icon btn-close" id="btnCloseModal">
@@ -1165,6 +1166,7 @@ export function openAddColorModal(dressId) {
   const overlay = document.getElementById('modalOverlay');
 
   modal.innerHTML = `
+    <div class="sheet-handle"></div>
     <div class="modal-header">
       <h2>Add Color to ${dressId}</h2>
       <button class="btn-icon btn-close" id="btnCloseModal">
@@ -1277,6 +1279,7 @@ function confirmDelete(dressId) {
   const overlay = document.getElementById('modalOverlay');
 
   modal.innerHTML = `
+    <div class="sheet-handle"></div>
     <div class="confirm-dialog">
       <div class="confirm-icon">⚠️</div>
       <h2>Delete Dress?</h2>
