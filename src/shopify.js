@@ -72,3 +72,34 @@ export async function syncAllDresses(dresses) {
 
   return { success, failed }
 }
+
+/**
+ * Sync the full current variant state for a specific list of dresses.
+ * Pushes every color × size with current quantity — not just pending changes.
+ */
+export async function syncDressesFullState(dresses) {
+  const succeeded = []
+  const failed = []
+
+  for (const dress of dresses) {
+    for (const color of dress.dress_colors || []) {
+      for (const sizeEntry of color.dress_sizes || []) {
+        const entry = { dress_id: dress.id, color: color.color_name, size: sizeEntry.size, quantity: sizeEntry.quantity }
+        try {
+          const result = await syncOne(dress.id, color.color_name, sizeEntry.size, sizeEntry.quantity)
+          if (result.ok || result.action === 'skipped') {
+            succeeded.push(entry)
+          } else {
+            console.warn('Sync failed:', dress.id, color.color_name, sizeEntry.size, result)
+            failed.push({ ...entry, reason: result.error || JSON.stringify(result) })
+          }
+        } catch (e) {
+          console.warn('Sync error:', e)
+          failed.push({ ...entry, reason: e.message || String(e) })
+        }
+      }
+    }
+  }
+
+  return { succeeded, failed }
+}

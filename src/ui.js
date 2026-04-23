@@ -7,7 +7,7 @@ import {
   bulkSetSizes, computeStats, searchDresses, resetDressQuantities,
   setSizeQuantity,
 } from './inventory.js';
-import { syncPendingChanges } from './shopify.js';
+import { syncPendingChanges, syncDressesFullState } from './shopify.js';
 import { scanDressCard } from './scan.js';
 
 // ─── STATE ──────────────────────────────────────────────────
@@ -552,18 +552,23 @@ async function handleDeleteSelected() {
 
 async function syncSelectedDresses() {
   const ids = Array.from(selectedDressIds);
-  const changesToSync = pendingSync.filter((c) => ids.includes(c.dress_id));
-  if (changesToSync.length === 0) {
-    showToast('No pending changes for selected dresses.', 'success');
+  const dressesToSync = allDresses.filter((d) => ids.includes(d.id));
+  if (dressesToSync.length === 0) {
+    showToast('No dresses selected.', 'error');
     return;
   }
+  const totalVariants = dressesToSync.reduce((n, d) =>
+    n + (d.dress_colors || []).reduce((m, c) => m + (c.dress_sizes || []).length, 0), 0);
+  if (totalVariants === 0) {
+    showToast('Selected dresses have no variants to sync.', 'error');
+    return;
+  }
+  showToast(`Syncing ${totalVariants} variant${totalVariants !== 1 ? 's' : ''}…`, 'info');
   try {
-    const { succeeded, failed } = await syncPendingChanges(changesToSync);
-    pendingSync = pendingSync.filter((c) => !succeeded.includes(c));
-    savePending();
-    logHistory('sync', `Synced ${succeeded.length} changes for ${ids.length} dress${ids.length !== 1 ? 'es' : ''} to Shopify`);
+    const { succeeded, failed } = await syncDressesFullState(dressesToSync);
+    logHistory('sync', `Full sync of ${ids.length} dress${ids.length !== 1 ? 'es' : ''} (${succeeded.length} variants) to Shopify`);
     if (failed.length === 0) {
-      showToast(`Synced ${succeeded.length} change${succeeded.length !== 1 ? 's' : ''} to Shopify!`, 'success');
+      showToast(`Synced ${succeeded.length} variant${succeeded.length !== 1 ? 's' : ''} to Shopify!`, 'success');
     } else {
       showToast(`Sync partial: ${succeeded.length} OK, ${failed.length} failed.`, 'error');
     }
