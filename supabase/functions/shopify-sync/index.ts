@@ -109,19 +109,18 @@ Deno.serve(async (req: Request) => {
       return json({ ok: true, action: 'skipped', reason: 'variant does not exist' })
     }
 
-    // If quantity is 0 and variant exists → delete it
+    // If quantity is 0 and variant exists → set inventory to 0 (never delete, preserves images)
     if (quantity === 0 && variant_id) {
-      const delRes = await fetch(
-        `https://${shop}/admin/api/2026-04/products/${product_id}/variants/${variant_id}.json`,
-        { method: 'DELETE', headers: shopifyHeaders }
-      )
-      await supabase.from('shopify_products')
-        .delete()
-        .eq('dress_id', dress_id)
-        .eq('color', color)
-        .eq('size', String(size))
-
-      return json({ ok: true, action: 'deleted_variant', status: delRes.status })
+      const invRes = await fetch(`https://${shop}/admin/api/2026-04/inventory_levels/set.json`, {
+        method: 'POST',
+        headers: shopifyHeaders,
+        body: JSON.stringify({
+          location_id: Number(location_id),
+          inventory_item_id: Number(inventory_item_id),
+          available: 0,
+        }),
+      })
+      return json({ ok: invRes.ok, action: 'zeroed_inventory' })
     }
 
     // If variant doesn't exist yet and quantity > 0 → create it
@@ -144,21 +143,12 @@ Deno.serve(async (req: Request) => {
         ['size', 'مقاس', 'مقاسات'].includes(o.name.toLowerCase())
       )?.position ?? 2
 
-      // Get price and image from existing same-color variants
+      // Get price from existing same-color variant
       const sameColorVariant = product?.variants?.find((v: any) => {
         const opts = [v.option1, v.option2, v.option3]
         return opts.some((o: string) => o?.toLowerCase() === color.toLowerCase())
       })
       const price = sameColorVariant?.price ?? '0'
-
-      // Find the image currently linked to same-color variants
-      const sameColorVariantIds: number[] = (product?.variants || [])
-        .filter((v: any) => [v.option1, v.option2, v.option3]
-          .some((o: string) => o?.toLowerCase() === color.toLowerCase()))
-        .map((v: any) => v.id)
-      const colorImage = product?.images?.find((img: any) =>
-        img.variant_ids?.some((id: number) => sameColorVariantIds.includes(id))
-      )
 
       const variantBody: any = {
         option1: null, option2: null, option3: null,
@@ -197,42 +187,6 @@ Deno.serve(async (req: Request) => {
         inventory_item_id: String(inventory_item_id),
         location_id: String(location_id),
       })
-
-      // Link new variant to color image
-      if (colorImage) {
-        // Existing image in Shopify — just add the new variant ID to it
-        const updatedVariantIds = [...(colorImage.variant_ids || []), Number(variant_id)]
-        await fetch(
-          `https://${shop}/admin/api/2026-04/products/${product_id}/images/${colorImage.id}.json`,
-          {
-            method: 'PUT',
-            headers: shopifyHeaders,
-            body: JSON.stringify({ image: { id: colorImage.id, variant_ids: updatedVariantIds } }),
-          }
-        )
-      } else {
-        // No existing Shopify image for this color (e.g. all variants were previously deleted).
-        // Fall back to the image stored in our dress_colors table.
-        const { data: colorRow } = await supabase
-          .from('dress_colors')
-          .select('image_url')
-          .eq('dress_id', dress_id)
-          .ilike('color_name', color)
-          .maybeSingle()
-
-        if (colorRow?.image_url) {
-          await fetch(
-            `https://${shop}/admin/api/2026-04/products/${product_id}/images.json`,
-            {
-              method: 'POST',
-              headers: shopifyHeaders,
-              body: JSON.stringify({
-                image: { src: colorRow.image_url, variant_ids: [Number(variant_id)] },
-              }),
-            }
-          )
-        }
-      }
 
       // Connect inventory item to location first (required for new variants)
       const connectRes = await fetch(`https://${shop}/admin/api/2026-04/inventory_levels/connect.json`, {
