@@ -7,7 +7,7 @@ import {
   bulkSetSizes, computeStats, searchDresses, resetDressQuantities,
   setSizeQuantity,
 } from './inventory.js';
-import { syncPendingChanges, syncAllDresses } from './shopify.js';
+import { syncPendingChanges } from './shopify.js';
 import { scanDressCard } from './scan.js';
 
 // ─── STATE ──────────────────────────────────────────────────
@@ -19,6 +19,7 @@ let addModeColors = []; // tracks color entries when adding a new dress
 let addColorCounter = 0; // unique ID for each color entry in add mode
 let selectMode = false;
 let selectedDressIds = new Set();
+let scanQueue = [];
 
 // ─── FILTER / SORT STATE ────────────────────────────────────
 const PENDING_KEY = 'pendingShopifySync.v1';
@@ -36,6 +37,16 @@ function savePending() {
   try { localStorage.setItem(PENDING_KEY, JSON.stringify(pendingSync)); } catch {}
   updateSyncBadge();
 }
+
+const HISTORY_KEY = 'btb_history.v1';
+function logHistory(type, description, dressId = null) {
+  try {
+    const hist = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+    hist.unshift({ type, description, dressId, timestamp: Date.now() });
+    if (hist.length > 500) hist.length = 500;
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(hist));
+  } catch {}
+}
 function queueChange(dress_id, color, size, quantity) {
   const key = (c) => `${c.dress_id}|${c.color}|${c.size}`;
   const newKey = `${dress_id}|${color}|${size}`;
@@ -44,7 +55,8 @@ function queueChange(dress_id, color, size, quantity) {
   savePending();
 }
 function updateSyncBadge() {
-  const badge = document.getElementById('syncBadge');
+  if (selectMode) return;
+  const badge = document.getElementById('moreBadge');
   if (!badge) return;
   if (pendingSync.length > 0) {
     badge.textContent = pendingSync.length;
@@ -194,14 +206,12 @@ function renderShell() {
         </svg>
         <span>Scan</span>
       </button>
-      <button class="tab-btn" id="tabSync">
+      <button class="tab-btn" id="tabSelect">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M4 12c0-4.418 3.582-8 8-8a8 8 0 0 1 6.32 3.09"/>
-          <path d="M20 12c0 4.418-3.582 8-8 8a8 8 0 0 1-6.32-3.09"/>
-          <polyline points="22 4 20 6.09 18 4"/><polyline points="2 20 4 17.91 6 20"/>
+          <polyline points="9 11 12 14 22 4"/>
+          <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>
         </svg>
-        <span>Sync</span>
-        <span class="tab-badge" id="syncBadge" style="display:none"></span>
+        <span>Select</span>
       </button>
       <button class="tab-btn" id="tabMore">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -227,7 +237,7 @@ function renderShell() {
   `;
 
   document.getElementById('btnAdd').addEventListener('click', () => openAddModal());
-  document.getElementById('tabSync').addEventListener('click', handleShopifySync);
+  document.getElementById('tabSelect').addEventListener('click', toggleSelectMode);
   document.getElementById('tabScan').addEventListener('click', () => document.getElementById('scanInput').click());
   document.getElementById('tabMore').addEventListener('click', openMoreSheet);
   document.getElementById('scanInput').addEventListener('change', handleScanFile);
@@ -265,37 +275,6 @@ async function loadDresses() {
   }
 }
 
-async function handleShopifySync() {
-  if (pendingSync.length === 0) {
-    showToast('No changes to sync.', 'success');
-    return;
-  }
-  const btn = document.getElementById('tabSync');
-  const originalContent = btn?.innerHTML;
-  if (btn) { btn.disabled = true; btn.innerHTML = `<span class="spinner small"></span><span>Syncing</span>`; }
-  const changesToSync = [...pendingSync];
-  try {
-    const { succeeded, failed } = await syncPendingChanges(changesToSync);
-    // Remove only the items that succeeded; keep failed items queued for retry.
-    // Also preserve any new changes that arrived during the sync.
-    pendingSync = pendingSync.filter((c) => !succeeded.includes(c));
-    savePending();
-    if (failed.length === 0) {
-      showToast(`Synced ${succeeded.length} change${succeeded.length !== 1 ? 's' : ''} to Shopify!`, 'success');
-    } else {
-      const first = failed[0];
-      const msg = `Failed: Dress ${first.dress_id} ${first.color} size ${first.size} — ${first.reason}`;
-      showToast(msg, 'error');
-      alert(`Sync failed (${failed.length} item${failed.length > 1 ? 's' : ''}):\n\n` +
-            failed.map(f => `• Dress ${f.dress_id} / ${f.color} / size ${f.size} → qty ${f.quantity}\n  ${f.reason}`).join('\n\n'));
-    }
-  } catch (err) {
-    showToast('Sync failed: ' + err.message, 'error');
-  } finally {
-    if (btn) { btn.disabled = false; btn.innerHTML = originalContent; }
-    updateSyncBadge();
-  }
-}
 
 function handleSearch(e) {
   clearTimeout(searchTimeout);
@@ -466,15 +445,16 @@ function toggleSelectMode() {
 }
 
 function updateSelectionUI() {
-  const count = selectMode ? selectedDressIds.size : 0;
-  const moreBadge = document.getElementById('moreBadge');
-  if (moreBadge) {
-    if (selectMode && count > 0) {
-      moreBadge.textContent = count;
-      moreBadge.style.display = '';
-    } else {
-      moreBadge.style.display = 'none';
-    }
+  const tabSelect = document.getElementById('tabSelect');
+  if (tabSelect) tabSelect.classList.toggle('active', selectMode);
+
+  const badge = document.getElementById('moreBadge');
+  if (!badge) return;
+  if (selectMode && selectedDressIds.size > 0) {
+    badge.textContent = selectedDressIds.size;
+    badge.style.display = '';
+  } else {
+    updateSyncBadge();
   }
 }
 
@@ -496,11 +476,16 @@ function openMoreSheet() {
     ? `<button class="action-sheet-btn" id="btnSheetSelect">Select Items</button>`
     : '';
 
+  const syncBtn = selectMode && count > 0
+    ? `<button class="action-sheet-btn action-sheet-btn-gold" id="btnSheetSync">Sync ${count} dress${count !== 1 ? 'es' : ''} to Shopify</button>`
+    : '';
+
   modal.innerHTML = `
     <div class="sheet-handle"></div>
     <div class="action-sheet">
       <p class="action-sheet-title">Actions</p>
-      ${selectBtn}${cancelSelectBtn}${resetBtn}${deleteBtn}
+      ${selectBtn}${cancelSelectBtn}${syncBtn}${resetBtn}${deleteBtn}
+      <button class="action-sheet-btn" id="btnSheetHistory">View History</button>
       <button class="action-sheet-btn action-sheet-btn-cancel" id="btnSheetClose">Cancel</button>
     </div>
   `;
@@ -511,6 +496,8 @@ function openMoreSheet() {
   modal.querySelector('#btnSheetCancelSelect')?.addEventListener('click', () => { closeModal(); toggleSelectMode(); });
   modal.querySelector('#btnSheetReset')?.addEventListener('click', () => { closeModal(); handleResetSelected(); });
   modal.querySelector('#btnSheetDelete')?.addEventListener('click', () => { closeModal(); handleDeleteSelected(); });
+  modal.querySelector('#btnSheetSync')?.addEventListener('click', () => { closeModal(); syncSelectedDresses(); });
+  modal.querySelector('#btnSheetHistory')?.addEventListener('click', () => { closeModal(); openHistorySheet(); });
 }
 
 async function handleResetSelected() {
@@ -527,6 +514,7 @@ async function handleResetSelected() {
         }
       }
     }
+    logHistory('reset', `Reset ${ids.length} dress${ids.length > 1 ? 'es' : ''} to 0`);
     showToast(`${ids.length} dress${ids.length > 1 ? 'es' : ''} reset to 0.`, 'success');
     selectedDressIds = new Set();
     await loadDresses();
@@ -550,6 +538,7 @@ async function handleDeleteSelected() {
         }
       }
     }
+    logHistory('delete', `Deleted ${ids.length} dress${ids.length > 1 ? 'es' : ''}`);
     showToast(`${ids.length} dress${ids.length > 1 ? 'es' : ''} deleted.`, 'success');
     selectedDressIds = new Set();
     await loadDresses();
@@ -559,14 +548,73 @@ async function handleDeleteSelected() {
   }
 }
 
+async function syncSelectedDresses() {
+  const ids = Array.from(selectedDressIds);
+  const changesToSync = pendingSync.filter((c) => ids.includes(c.dress_id));
+  if (changesToSync.length === 0) {
+    showToast('No pending changes for selected dresses.', 'success');
+    return;
+  }
+  try {
+    const { succeeded, failed } = await syncPendingChanges(changesToSync);
+    pendingSync = pendingSync.filter((c) => !succeeded.includes(c));
+    savePending();
+    logHistory('sync', `Synced ${succeeded.length} changes for ${ids.length} dress${ids.length !== 1 ? 'es' : ''} to Shopify`);
+    if (failed.length === 0) {
+      showToast(`Synced ${succeeded.length} change${succeeded.length !== 1 ? 's' : ''} to Shopify!`, 'success');
+    } else {
+      showToast(`Sync partial: ${succeeded.length} OK, ${failed.length} failed.`, 'error');
+    }
+  } catch (err) {
+    showToast('Sync failed: ' + err.message, 'error');
+  }
+}
+
+function openHistorySheet() {
+  const modal = document.getElementById('dressModal');
+  const overlay = document.getElementById('modalOverlay');
+
+  let hist = [];
+  try { hist = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]'); } catch {}
+
+  const iconMap = { scan: '📸', sync: '🔄', delete: '🗑️', add: '✚', edit: '✏️', reset: '↺' };
+  const rowsHtml = hist.slice(0, 100).map((entry) => {
+    const d = new Date(entry.timestamp);
+    const timeStr = d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const icon = iconMap[entry.type] || '•';
+    return `
+      <div class="history-row">
+        <span class="history-icon">${icon}</span>
+        <div class="history-info">
+          <span class="history-desc">${entry.description}${entry.dressId ? ' · #' + entry.dressId : ''}</span>
+          <span class="history-time">${timeStr}</span>
+        </div>
+      </div>
+    `;
+  }).join('') || '<p class="empty-queue-msg">No history yet</p>';
+
+  modal.innerHTML = `
+    <div class="sheet-handle"></div>
+    <div class="modal-header">
+      <h2>History</h2>
+      <button class="btn-icon btn-close" id="btnCloseHistory">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+          <path d="M18 6L6 18M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+    <div class="history-list">${rowsHtml}</div>
+  `;
+
+  overlay.classList.add('active');
+  modal.querySelector('#btnCloseHistory').addEventListener('click', closeModal);
+}
+
 async function handleScanFile(e) {
   const file = e.target.files?.[0];
   e.target.value = '';
   if (!file) return;
-  const btn = document.getElementById('btnScan');
-  const original = btn.innerHTML;
-  btn.disabled = true;
-  btn.innerHTML = '<span class="spinner"></span> Scanning...';
+  showToast('Scanning...', 'info');
   try {
     const result = await scanDressCard(file);
     const dressId = (result?.dress_id || '').toString().trim();
@@ -590,16 +638,13 @@ async function handleScanFile(e) {
     const sizeEntry = color.dress_sizes?.find((s) => s.size === size);
     const currentQty = sizeEntry?.quantity || 0;
 
-    openScanActionModal(match, color, size, currentQty);
+    openScanChoiceModal(match, color, size, currentQty);
   } catch (err) {
     showToast('Scan failed: ' + err.message, 'error');
-  } finally {
-    btn.disabled = false;
-    btn.innerHTML = original;
   }
 }
 
-function openScanActionModal(dress, color, size, currentQty) {
+function openScanChoiceModal(dress, color, size, currentQty) {
   const modal = document.getElementById('dressModal');
   const overlay = document.getElementById('modalOverlay');
   modal.innerHTML = `
@@ -613,27 +658,91 @@ function openScanActionModal(dress, color, size, currentQty) {
       </p>
       <div class="form-actions" style="gap:8px;flex-wrap:wrap;justify-content:center">
         <button class="btn btn-ghost" id="btnScanCancel">Cancel</button>
-        <button class="btn btn-primary" id="btnScanAdd">+ Add 1 (→ ${currentQty + 1})</button>
-        <button class="btn btn-danger" id="btnScanRemove" ${currentQty <= 0 ? 'disabled' : ''}>− Remove 1 (→ ${Math.max(0, currentQty - 1)})</button>
+        <button class="btn btn-primary" id="btnScanAdd">+ Add 1</button>
+        <button class="btn btn-danger" id="btnScanRemove" ${currentQty <= 0 ? 'disabled' : ''}>− Remove 1</button>
       </div>
     </div>
   `;
   overlay.classList.add('active');
   modal.querySelector('#btnScanCancel').addEventListener('click', closeModal);
-  modal.querySelector('#btnScanAdd').addEventListener('click', () => applyScanDelta(dress.id, color, size, currentQty, +1));
-  modal.querySelector('#btnScanRemove').addEventListener('click', () => applyScanDelta(dress.id, color, size, currentQty, -1));
+  modal.querySelector('#btnScanAdd').addEventListener('click', () => stageToScanQueue(dress, color, size, currentQty, +1));
+  modal.querySelector('#btnScanRemove').addEventListener('click', () => stageToScanQueue(dress, color, size, currentQty, -1));
 }
 
-async function applyScanDelta(dressId, color, size, currentQty, delta) {
-  const newQty = Math.max(0, currentQty + delta);
+function stageToScanQueue(dress, color, size, currentQty, delta) {
+  scanQueue = scanQueue.filter(
+    (item) => !(item.dressId === dress.id && item.colorName === color.color_name && item.size === size)
+  );
+  scanQueue.push({ dressId: dress.id, colorId: color.id, colorName: color.color_name, size, delta, currentQty });
+  openScanQueueSheet();
+}
+
+function openScanQueueSheet() {
+  const modal = document.getElementById('dressModal');
+  const overlay = document.getElementById('modalOverlay');
+
+  const rowsHtml = scanQueue.map((item, idx) => `
+    <div class="scan-queue-row">
+      <div class="scan-queue-info">
+        <span class="scan-queue-id">#${item.dressId}</span>
+        <span class="scan-queue-detail">${item.colorName} · Size ${item.size}</span>
+      </div>
+      <span class="scan-queue-delta ${item.delta > 0 ? 'add' : 'remove'}">${item.delta > 0 ? '+1' : '−1'}</span>
+      <button class="scan-queue-remove" data-idx="${idx}">×</button>
+    </div>
+  `).join('');
+
+  modal.innerHTML = `
+    <div class="sheet-handle"></div>
+    <div class="modal-header">
+      <h2>Scan Queue (${scanQueue.length})</h2>
+      <button class="btn-icon btn-close" id="btnScanQueueClose">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+          <path d="M18 6L6 18M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+    ${scanQueue.length === 0
+      ? '<p class="empty-queue-msg">Queue is empty</p>'
+      : `<div class="scan-queue-list">${rowsHtml}</div>`
+    }
+    <div class="sheet-footer">
+      ${scanQueue.length > 0 ? `<button class="btn btn-primary btn-full" id="btnApplyAll">Apply All (${scanQueue.length})</button>` : ''}
+      <button class="btn btn-ghost btn-full" id="btnScanQueueDone">Done</button>
+    </div>
+  `;
+
+  overlay.classList.add('active');
+  modal.querySelector('#btnScanQueueClose')?.addEventListener('click', closeModal);
+  modal.querySelector('#btnScanQueueDone')?.addEventListener('click', closeModal);
+  modal.querySelector('#btnApplyAll')?.addEventListener('click', applyScanQueue);
+  modal.querySelectorAll('.scan-queue-remove').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      scanQueue.splice(parseInt(btn.dataset.idx), 1);
+      if (scanQueue.length === 0) { closeModal(); } else { openScanQueueSheet(); }
+    });
+  });
+}
+
+async function applyScanQueue() {
+  if (scanQueue.length === 0) return;
+  const items = [...scanQueue];
+  const btn = document.getElementById('btnApplyAll');
+  if (btn) { btn.disabled = true; btn.textContent = 'Applying...'; }
   try {
-    await setSizeQuantity(color.id, size, newQty);
-    queueChange(dressId, color.color_name, size, newQty);
-    showToast(`${color.color_name} size ${size}: ${currentQty} → ${newQty}`, 'success');
+    for (const item of items) {
+      const newQty = Math.max(0, item.currentQty + item.delta);
+      await setSizeQuantity(item.colorId, item.size, newQty);
+      queueChange(item.dressId, item.colorName, item.size, newQty);
+      logHistory('scan', `${item.delta > 0 ? 'Added 1' : 'Removed 1'} · ${item.colorName} · Size ${item.size}`, item.dressId);
+    }
+    scanQueue = [];
+    showToast(`Applied ${items.length} scan${items.length !== 1 ? 's' : ''} to inventory.`, 'success');
     closeModal();
     await loadDresses();
   } catch (err) {
-    showToast('Update failed: ' + err.message, 'error');
+    showToast('Apply failed: ' + err.message, 'error');
+    if (btn) { btn.disabled = false; btn.textContent = `Apply All (${scanQueue.length})`; }
   }
 }
 
@@ -1067,6 +1176,7 @@ function renderDressForm(dress) {
           }
         }
 
+        logHistory('edit', 'Updated dress details', dress.id);
         showToast('Dress updated!', 'success');
       } else {
         const dressId = document.getElementById('dressId').value.trim();
@@ -1100,6 +1210,7 @@ function renderDressForm(dress) {
         }
 
         const colorCount = colorBlocks.length;
+        logHistory('add', `Added dress with ${colorCount} color${colorCount > 1 ? 's' : ''}`, dressId);
         showToast(`Dress added with ${colorCount} color${colorCount > 1 ? 's' : ''}!`, 'success');
       }
 
@@ -1305,6 +1416,7 @@ function confirmDelete(dressId) {
           queueChange(dressId, color.color_name, sizeEntry.size, 0);
         }
       }
+      logHistory('delete', 'Deleted dress', dressId);
       showToast('Dress deleted', 'success');
       closeModal();
       await loadDresses();
