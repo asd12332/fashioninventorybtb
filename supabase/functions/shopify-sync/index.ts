@@ -198,8 +198,9 @@ Deno.serve(async (req: Request) => {
         location_id: String(location_id),
       })
 
-      // Link new variant to the same color image (preserves existing image assignments)
+      // Link new variant to color image
       if (colorImage) {
+        // Existing image in Shopify — just add the new variant ID to it
         const updatedVariantIds = [...(colorImage.variant_ids || []), Number(variant_id)]
         await fetch(
           `https://${shop}/admin/api/2026-04/products/${product_id}/images/${colorImage.id}.json`,
@@ -209,6 +210,28 @@ Deno.serve(async (req: Request) => {
             body: JSON.stringify({ image: { id: colorImage.id, variant_ids: updatedVariantIds } }),
           }
         )
+      } else {
+        // No existing Shopify image for this color (e.g. all variants were previously deleted).
+        // Fall back to the image stored in our dress_colors table.
+        const { data: colorRow } = await supabase
+          .from('dress_colors')
+          .select('image_url')
+          .eq('dress_id', dress_id)
+          .ilike('color_name', color)
+          .maybeSingle()
+
+        if (colorRow?.image_url) {
+          await fetch(
+            `https://${shop}/admin/api/2026-04/products/${product_id}/images.json`,
+            {
+              method: 'POST',
+              headers: shopifyHeaders,
+              body: JSON.stringify({
+                image: { src: colorRow.image_url, variant_ids: [Number(variant_id)] },
+              }),
+            }
+          )
+        }
       }
 
       // Connect inventory item to location first (required for new variants)
