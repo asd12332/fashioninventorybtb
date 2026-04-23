@@ -485,6 +485,7 @@ function openMoreSheet() {
     <div class="action-sheet">
       <p class="action-sheet-title">Actions</p>
       ${selectBtn}${cancelSelectBtn}${syncBtn}${resetBtn}${deleteBtn}
+      ${pendingSync.length > 0 ? `<button class="action-sheet-btn action-sheet-btn-warning" id="btnSheetClearSync">Clear Sync Queue (${pendingSync.length})</button>` : ''}
       <button class="action-sheet-btn" id="btnSheetHistory">View History</button>
       <button class="action-sheet-btn action-sheet-btn-cancel" id="btnSheetClose">Cancel</button>
     </div>
@@ -498,6 +499,7 @@ function openMoreSheet() {
   modal.querySelector('#btnSheetDelete')?.addEventListener('click', () => { closeModal(); handleDeleteSelected(); });
   modal.querySelector('#btnSheetSync')?.addEventListener('click', () => { closeModal(); syncSelectedDresses(); });
   modal.querySelector('#btnSheetHistory')?.addEventListener('click', () => { closeModal(); openHistorySheet(); });
+  modal.querySelector('#btnSheetClearSync')?.addEventListener('click', () => { pendingSync = []; savePending(); closeModal(); showToast('Sync queue cleared.', 'success'); });
 }
 
 async function handleResetSelected() {
