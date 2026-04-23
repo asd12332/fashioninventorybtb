@@ -168,6 +168,17 @@ export async function updateColorImage(colorId, dressId, colorName, imageFile) {
   return data;
 }
 
+export async function renameColor(colorId, newName) {
+  const { data, error } = await db()
+    .from('dress_colors')
+    .update({ color_name: newName })
+    .eq('id', colorId)
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+}
+
 export async function deleteColor(colorId) {
   const { data: color } = await db()
     .from('dress_colors')

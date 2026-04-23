@@ -3,7 +3,7 @@ import { isConfigured } from './supabase.js';
 import { compressImage, formatBytes } from './imageCompressor.js';
 import {
   addDress, updateDress, deleteDress, getDresses,
-  addColorToDress, updateColorImage, deleteColor,
+  addColorToDress, updateColorImage, deleteColor, renameColor,
   bulkSetSizes, computeStats, searchDresses, resetDressQuantities,
   setSizeQuantity,
 } from './inventory.js';
@@ -987,7 +987,12 @@ function renderDressForm(dress) {
             <div class="edit-color-header">
               <div class="edit-color-info">
                 <span class="color-dot large" style="background:${color.color_hex}"></span>
-                <span class="edit-color-name">${color.color_name}</span>
+                <span class="edit-color-name" data-color-id="${color.id}">${color.color_name}</span>
+                <button type="button" class="btn-icon btn-rename-color" data-color-id="${color.id}" data-color-name="${color.color_name}" title="Rename color">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+                    <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                  </svg>
+                </button>
               </div>
               <button type="button" class="btn-icon btn-delete-color" data-color-id="${color.id}" title="Delete this color">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
@@ -1115,6 +1120,22 @@ function renderDressForm(dress) {
           showToast('Error: ' + err.message, 'error');
           btn.disabled = false;
         }
+      });
+    });
+
+    // Rename color buttons
+    modal.querySelectorAll('.btn-rename-color').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const colorId = btn.dataset.colorId;
+        const oldName = btn.dataset.colorName;
+        const newName = prompt(`Rename "${oldName}" to:`, oldName)?.trim();
+        if (!newName || newName === oldName) return;
+        renameColor(colorId, newName).then(async () => {
+          showToast(`Renamed to "${newName}"`, 'success');
+          allDresses = await getDresses();
+          const updatedDress = allDresses.find((d) => d.id === dress.id);
+          if (updatedDress) renderDressForm(updatedDress);
+        }).catch((err) => showToast('Rename failed: ' + err.message, 'error'));
       });
     });
 
