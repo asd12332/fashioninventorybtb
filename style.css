@@ -144,7 +144,7 @@ body {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 50px;
-  color: var(--text-1); font-size: 0.82rem; font-family: inherit;
+  color: var(--text-1); font-size: 16px; font-family: inherit;
   transition: border-color 0.2s;
 }
 .search-box input:focus { outline: none; border-color: var(--gold); }
@@ -161,7 +161,7 @@ body {
   padding: 0.3rem 0.65rem;
   background: var(--surface); border: 1px solid var(--border);
   border-radius: 50px; color: var(--text-1);
-  font-size: 0.75rem; font-family: inherit;
+  font-size: 16px; font-family: inherit;
   white-space: nowrap; flex-shrink: 0;
   -webkit-appearance: none; cursor: pointer;
   min-height: 32px;
@@ -509,7 +509,7 @@ body {
   padding: 0.55rem 0.7rem;
   background: var(--surface-2); border: 1px solid var(--border);
   border-radius: var(--radius-sm); color: var(--text-1);
-  font-family: inherit; font-size: 0.85rem; resize: vertical;
+  font-family: inherit; font-size: 16px; resize: vertical;
   transition: border-color 0.2s;
   min-height: 40px;
 }
