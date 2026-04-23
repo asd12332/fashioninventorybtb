@@ -7,7 +7,7 @@ import {
   bulkSetSizes, computeStats, searchDresses, resetDressQuantities,
   setSizeQuantity,
 } from './inventory.js';
-import { syncPendingChanges, syncDressesFullState } from './shopify.js';
+import { syncDressesFullState } from './shopify.js';
 import { scanDressCard } from './scan.js';
 
 // ─── STATE ──────────────────────────────────────────────────
@@ -22,22 +22,6 @@ let selectedDressIds = new Set();
 let scanQueue = [];
 
 // ─── FILTER / SORT STATE ────────────────────────────────────
-const PENDING_KEY = 'pendingShopifySync.v1';
-let pendingSync = loadPending(); // { dress_id, color, size, quantity } changes awaiting sync
-
-function loadPending() {
-  try {
-    const raw = localStorage.getItem(PENDING_KEY);
-    return raw ? JSON.parse(raw) : [];
-  } catch {
-    return [];
-  }
-}
-function savePending() {
-  try { localStorage.setItem(PENDING_KEY, JSON.stringify(pendingSync)); } catch {}
-  updateSyncBadge();
-}
-
 const HISTORY_KEY = 'btb_history.v1';
 function logHistory(type, description, dressId = null) {
   try {
@@ -47,25 +31,6 @@ function logHistory(type, description, dressId = null) {
     localStorage.setItem(HISTORY_KEY, JSON.stringify(hist));
   } catch {}
 }
-function queueChange(dress_id, color, size, quantity) {
-  const key = (c) => `${c.dress_id}|${c.color}|${c.size}`;
-  const newKey = `${dress_id}|${color}|${size}`;
-  pendingSync = pendingSync.filter((c) => key(c) !== newKey);
-  pendingSync.push({ dress_id, color, size: parseInt(size), quantity });
-  savePending();
-}
-function updateSyncBadge() {
-  if (selectMode) return;
-  const badge = document.getElementById('moreBadge');
-  if (!badge) return;
-  if (pendingSync.length > 0) {
-    badge.textContent = pendingSync.length;
-    badge.style.display = '';
-  } else {
-    badge.style.display = 'none';
-  }
-}
-
 let filterColor = '';       // '' = all
 let filterPrice = '';
 let sortOrder = 'desc';     // 'asc' | 'desc' by ID
@@ -220,7 +185,6 @@ function renderShell() {
           <circle cx="12" cy="19" r="1.5" fill="currentColor"/>
         </svg>
         <span>More</span>
-        <span class="tab-badge" id="moreBadge" style="display:none"></span>
       </button>
     </nav>
 
@@ -241,7 +205,6 @@ function renderShell() {
   document.getElementById('tabScan').addEventListener('click', () => document.getElementById('scanInput').click());
   document.getElementById('tabMore').addEventListener('click', openMoreSheet);
   document.getElementById('scanInput').addEventListener('change', handleScanFile);
-  updateSyncBadge();
 
   document.getElementById('searchInput').addEventListener('input', handleSearch);
   document.getElementById('modalOverlay').addEventListener('click', (e) => {
@@ -447,15 +410,6 @@ function toggleSelectMode() {
 function updateSelectionUI() {
   const tabSelect = document.getElementById('tabSelect');
   if (tabSelect) tabSelect.classList.toggle('active', selectMode);
-
-  const badge = document.getElementById('moreBadge');
-  if (!badge) return;
-  if (selectMode && selectedDressIds.size > 0) {
-    badge.textContent = selectedDressIds.size;
-    badge.style.display = '';
-  } else {
-    updateSyncBadge();
-  }
 }
 
 function openMoreSheet() {
@@ -485,7 +439,6 @@ function openMoreSheet() {
     <div class="action-sheet">
       <p class="action-sheet-title">Actions</p>
       ${selectBtn}${cancelSelectBtn}${syncBtn}${resetBtn}${deleteBtn}
-      ${pendingSync.length > 0 ? `<button class="action-sheet-btn action-sheet-btn-warning" id="btnSheetClearSync">Clear Sync Queue (${pendingSync.length})</button>` : ''}
       <button class="action-sheet-btn" id="btnSheetHistory">View History</button>
       <button class="action-sheet-btn action-sheet-btn-cancel" id="btnSheetClose">Cancel</button>
     </div>
@@ -499,7 +452,6 @@ function openMoreSheet() {
   modal.querySelector('#btnSheetDelete')?.addEventListener('click', () => { closeModal(); handleDeleteSelected(); });
   modal.querySelector('#btnSheetSync')?.addEventListener('click', () => { closeModal(); syncSelectedDresses(); });
   modal.querySelector('#btnSheetHistory')?.addEventListener('click', () => { closeModal(); openHistorySheet(); });
-  modal.querySelector('#btnSheetClearSync')?.addEventListener('click', () => { pendingSync = []; savePending(); closeModal(); showToast('Sync queue cleared.', 'success'); });
 }
 
 async function handleResetSelected() {
@@ -510,11 +462,6 @@ async function handleResetSelected() {
     for (const id of ids) {
       await resetDressQuantities(id);
       const dress = allDresses.find((d) => d.id === id);
-      for (const color of dress?.dress_colors || []) {
-        for (const sz of color.dress_sizes || []) {
-          if ((sz.quantity || 0) > 0) queueChange(id, color.color_name, sz.size, 0);
-        }
-      }
     }
     logHistory('reset', `Reset ${ids.length} dress${ids.length > 1 ? 'es' : ''} to 0`);
     showToast(`${ids.length} dress${ids.length > 1 ? 'es' : ''} reset to 0.`, 'success');
@@ -536,7 +483,6 @@ async function handleDeleteSelected() {
       await deleteDress(id);
       for (const color of dressToDelete?.dress_colors || []) {
         for (const sz of color.dress_sizes || []) {
-          queueChange(id, color.color_name, sz.size, 0);
         }
       }
     }
@@ -740,7 +686,6 @@ async function applyScanQueue() {
     for (const item of items) {
       const newQty = Math.max(0, item.currentQty + item.delta);
       await setSizeQuantity(item.colorId, item.size, newQty);
-      queueChange(item.dressId, item.colorName, item.size, newQty);
       logHistory('scan', `${item.delta > 0 ? 'Added 1' : 'Removed 1'} · ${item.colorName} · Size ${item.size}`, item.dressId);
     }
     scanQueue = [];
@@ -1104,7 +1049,6 @@ function renderDressForm(dress) {
           const colorToDelete = dress.dress_colors.find((c) => c.id === colorId);
           await deleteColor(colorId);
           for (const sizeEntry of colorToDelete?.dress_sizes || []) {
-            queueChange(dress.id, colorToDelete.color_name, sizeEntry.size, 0);
           }
           showToast('Color deleted', 'success');
           allDresses = await getDresses();
@@ -1199,7 +1143,6 @@ function renderDressForm(dress) {
           if (Object.keys(changedSizes).length > 0) {
             await bulkSetSizes(colorId, changedSizes);
             for (const [size, qty] of Object.entries(changedSizes)) {
-              queueChange(dress.id, originalColor.color_name, size, qty);
             }
           }
         }
@@ -1232,7 +1175,6 @@ function renderDressForm(dress) {
           if (Object.keys(sizesMap).length > 0) {
             await bulkSetSizes(colorData.id, sizesMap);
             for (const [size, qty] of Object.entries(sizesMap)) {
-              queueChange(dressId, colorName, size, qty);
             }
           }
         }
@@ -1397,7 +1339,6 @@ export function openAddColorModal(dressId) {
       if (Object.keys(sizesMap).length > 0) {
         await bulkSetSizes(colorData.id, sizesMap);
         for (const [size, qty] of Object.entries(sizesMap)) {
-          queueChange(dressId, colorName, size, qty);
         }
       }
 
@@ -1441,7 +1382,6 @@ function confirmDelete(dressId) {
       await deleteDress(dressId);
       for (const color of dressToDelete?.dress_colors || []) {
         for (const sizeEntry of color.dress_sizes || []) {
-          queueChange(dressId, color.color_name, sizeEntry.size, 0);
         }
       }
       logHistory('delete', 'Deleted dress', dressId);
